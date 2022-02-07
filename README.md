@@ -20,8 +20,8 @@ The step-by-step tutorials are provided in the [**MetDNA2 website**](http://metd
 
 ## Need help?
 If you have any problems or bug reports, please contact us with the following materials. We will answer your questions at 1:00 pm - 3:00 pm (Beijing time) on every Friday.
-- We always welcome any discussions and bug reports about MetDNA via google group: MetDNA forum.
-- For **Chinese users**, please join our QQ group for any discussions and bug reports: 786156544.
+- We always welcome any discussions and bug reports about MetDNA via google group: [**MetDNA forum**](https://groups.google.com/g/metdna).
+- For **Chinese users**, please join our QQ group for any discussions and bug reports: **786156544**.
 
 ## Citation
 This free open-source software implements academic research by the authors and co-workers. If you use it, please support the project by citing the appropriate journal articles.
