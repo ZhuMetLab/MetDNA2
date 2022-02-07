@@ -1,7 +1,7 @@
 # MetDNA2 <img src="man/figures/logo.png" align="right" alt="" width="150"/>
 
 ## About
-**MetDNA2** excutes **knowledge-guided multi-layer metabolic network** to annotate metabolite from knowns to unknowns. The KGMN accepts various data imports from common data processing tools, including XCMS, MS-DIAL, and MZmine2.
+**MetDNA2** excutes **knowledge-guided multi-layer metabolic network** to annotate metabolites from knowns to unknowns. The KGMN accepts various data imports from common data processing tools, including XCMS, MS-DIAL, and MZmine2.
 
 The completed functions are provided in the [**MetDNA2 webserver**](http://metdna.zhulab.cn/) via a free registration. The detailed tutorial was also provided in the MetDNA2 webserver.
 
