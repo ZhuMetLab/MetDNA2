@@ -1,0 +1,7 @@
+pandoc: 2.7.3
+pkgdown: 1.6.1
+pkgdown_sha: ~
+articles:
+  instruction_of_MetDNA2: instruction_of_MetDNA2.html
+last_built: 2021-05-10T07:32Z
+

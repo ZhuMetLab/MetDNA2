@@ -1,0 +1,917 @@
+---
+output: html_document
+header-includes:
+  - \usepackage{comment}
+params:
+  is_rt_calibration: TRUE
+  is_bio_interpret: TRUE
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# define some global functions
+ZZWTheme <- function(
+  type = c('common', 'classic')
+){
+  type <- match.arg(type)
+             switch (type,
+                     'common' = {
+                       result <- ggplot2::theme_bw() +
+                         ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.4,
+                                                                           face = "bold",
+                                                                           size = 14),
+                                        panel.grid.major = ggplot2::element_blank(),
+                                        panel.grid.minor = ggplot2::element_blank(),
+                                        panel.background = ggplot2::element_blank(),
+                                        panel.border = ggplot2::element_rect(fill = NA, colour = 'black'),
+                                        legend.background = ggplot2::element_blank(),
+                                        axis.text.x = ggplot2::element_text(size = 10, colour = 'black'),
+                                        axis.text.y = ggplot2::element_text(size = 10, angle = 90,
+                                                                            colour = 'black'),
+                                        axis.title.x = ggplot2::element_text(size = 12, colour = 'black'),
+                                        axis.title.y = ggplot2::element_text(size = 12, colour = 'black'),
+                                        axis.ticks = ggplot2::element_line(colour = 'black'))
+                     },
+                     'classic' = {
+                       result <- ggplot2::theme_classic() +
+                         ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.4,
+                                                                           face = "bold",
+                                                                           size = 14),
+                                        panel.grid.major = ggplot2::element_blank(),
+                                        panel.grid.minor = ggplot2::element_blank(),
+                                        panel.background = ggplot2::element_rect(fill = NA, colour = NA),
+                                        # panel.border = ggplot2::element_rect(fill = NA, colour = 'black'),
+                                        legend.background = ggplot2::element_blank(),
+                                        axis.line = ggplot2::element_line(colour = 'black'),
+                                        axis.text.x = ggplot2::element_text(size = 10, colour = 'black'),
+                                        axis.text.y = ggplot2::element_text(size = 10, angle = 90,
+                                                                            colour = 'black'),
+                                        axis.title.x = ggplot2::element_text(size = 12, colour = 'black'),
+                                        axis.title.y = ggplot2::element_text(size = 12, colour = 'black'),
+                                        axis.ticks = ggplot2::element_line(colour = 'black'))
+                     }
+             )
+
+
+
+             return(result)
+}
+
+
+ZZWMultiDeckPiePlot <- function(
+  raw_data,
+  mode=c('single', 'double', 'triple')
+){
+  temp_data <- raw_data
+             mode <- match.arg(mode)
+
+             switch (mode,
+               'single' = {
+                 if (ncol(temp_data)!=2) {
+                   stop('Please check the format. (1st column: group1, 2nd column: value)')
+                 }
+
+                 colnames(temp_data) <- c('group1', 'value')
+
+                 temp_data$fraction <- temp_data$value/sum(temp_data$value)
+                 temp_data$ymax <- cumsum(temp_data$fraction)
+                 temp_data$ymin <- c(0, head(temp_data$ymax, n = -1))
+
+                 label_value <- round(temp_data$fraction*100, 1)
+                 label <- paste0(temp_data$value, " (", label_value, '%)')
+
+                 pie_plot <- ggplot2::ggplot(temp_data) +
+                   ggplot2::geom_rect(ggplot2::aes(fill=group1,
+                                 ymax=ymax,
+                                 ymin=ymin,
+                                 xmax=3,
+                                 xmin=2)) +
+                   ggplot2::xlim(c(0, 3)) +
+                   ggplot2::theme(aspect.ratio=1) +
+                   ggplot2::coord_polar(theta="y") +
+                   ggplot2::theme_void() +
+                   ggplot2::geom_text(ggplot2::aes(y = temp_data$fraction/2 + temp_data$ymin,
+                                 x = 2.5, label = label))
+
+                 return(pie_plot)
+               },
+
+               'double' = {
+                 if (ncol(temp_data)!=3) {
+                   stop('Please check the format. (1st column: group1, 2nd column: group2, 3rd column value)')
+                 }
+
+                 colnames(temp_data) <- c('group1', 'group2', 'value')
+
+                 temp_data$fraction <- temp_data$value/sum(temp_data$value)
+                 temp_data$ymax <- cumsum(temp_data$fraction)
+                 temp_data$ymin <- c(0, head(temp_data$ymax, n = -1))
+
+                 label_value <- round(temp_data$fraction*100, 1)
+                 label <- paste0(temp_data$value, " (", label_value, '%)')
+
+                 pie_plot <- ggplot2::ggplot(temp_data) +
+                   ggplot2::geom_rect(ggplot2::aes(fill=group2,
+                                 ymax=ymax,
+                                 ymin=ymin,
+                                 xmax=4,
+                                 xmin=3)) +
+                   ggplot2::geom_rect(ggplot2::aes(fill=group1,
+                                 ymax=ymax,
+                                 ymin=ymin,
+                                 xmax=3,
+                                 xmin=2)) +
+                   ggplot2::xlim(c(0, 4)) +
+                   ggplot2::theme(aspect.ratio=1) +
+                   ggplot2::coord_polar(theta="y") +
+                   ggplot2::geom_text(ggplot2::aes(y = temp_data$fraction/2 + temp_data$ymin,
+                                 x = 2.5, label = label)) +
+                   ggplot2::theme_void()
+
+                 return(pie_plot)
+
+               },
+
+
+               'triple' = {
+                 if (ncol(temp_data)!=4) {
+                   stop('Please check the format. (1st column: group1, 2nd column: group2, 3rd column: group4, 3rd column: value)')
+                 }
+
+                 colnames(temp_data) <- c('group1', 'group2', 'group3', 'value')
+
+                 temp_data$fraction <- temp_data$value/sum(temp_data$value)
+                 temp_data$ymax <- cumsum(temp_data$fraction)
+                 temp_data$ymin <- c(0, head(temp_data$ymax, n = -1))
+
+                 label_value <- round(temp_data$fraction*100, 1)
+                 label <- paste0(temp_data$value, " (", label_value, '%)')
+
+                 pie_plot <- ggplot2::ggplot(temp_data) +
+                   ggplot2::geom_rect(ggplot2::aes(fill=group3,
+                                 ymax=ymax,
+                                 ymin=ymin,
+                                 xmax=5,
+                                 xmin=4)) +
+                   ggplot2::geom_rect(ggplot2::aes(fill=group2,
+                                 ymax=ymax,
+                                 ymin=ymin,
+                                 xmax=4,
+                                 xmin=3)) +
+                   ggplot2::geom_rect(ggplot2::aes(fill=group1,
+                                 ymax=ymax,
+                                 ymin=ymin,
+                                 xmax=3,
+                                 xmin=2)) +
+                   ggplot2::xlim(c(0, 5)) +
+                   ggplot2::theme(aspect.ratio=1) +
+                   ggplot2::coord_polar(theta="y") +
+                   ggplot2::geom_text(ggplot2::aes(y = temp_data$fraction/2 + temp_data$ymin,
+                                 x = 2.5, label = label)) +
+                   ggplot2::theme_void()
+
+                 return(pie_plot)
+
+               }
+             )
+}
+
+```
+
+<center>![](logo.png)</center>
+
+<h2><font color = 'dodgerblue'>**Analysis of report**</font></h2>
+<h4>Zhiwei Zhou, Mingdu Luo, Yuping Cai, Xiaotao Shen, Zheng-Jiang Zhu</h4>
+<h4>`r format(Sys.Date())`</h3>
+
+
+---
+
+### <font color = 'dodgerblue'>**Introduction**</font>
+
+<font size = "3">**MetDNA version `r packageVersion('MetDNA2')`** was developed in 2021 by Zhiwei Zhou, Mingdu Luo and Yuping Cai from [Dr. Zheng-Jiang Zhu lab](http://www.zhulab.cn/), Chinese Academy of Sciences.</font>
+
+---
+
+
+### <font color = 'dodgerblue'>**Parameter**</font>
+
+**Table 1**: The parameter setting of this analysis**
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+load("./para_table.RData")
+knitr::kable(para_table, format = 'markdown')
+```
+
+---
+
+### <font color = 'dodgerblue'>**Sample overview**</font>
+- A total of `r load("./summary_info.RData"); summary_info$n_feature` features (m/z: `r load("./summary_info.RData"); paste(round(summary_info$range_mz, 4), collapse = '-')`; RT: `r load("./summary_info.RData"); paste(round(summary_info$range_rt, 4), collapse = '-')`) are included in the feature table. 
+- A total of `r load("./summary_info.RData"); summary_info$n_sample` samples with `r load("./summary_info.RData"); summary_info$n_group` groups are included in this data set.
+
+
+```{r, echo=FALSE,  message=FALSE, warning=FALSE, fig.align = 'center', results = 'hide'}
+library(dplyr)
+# setGeneric(name = 'plotFeatureTable', 
+#            def = function(ms1_data){
+#              feature_table <- ms1_data$info
+#              mean_int <- ms1_data$subject %>% apply(.,1,mean)
+#              feature_table <- feature_table %>% 
+#                dplyr::mutate(int = mean_int) %>% 
+#                dplyr::select(name:rt, int)
+#              
+#              temp_plot <- ggplot2::ggplot(feature_table) + 
+#                ggplot2::geom_point(ggplot2::aes(x = rt, 
+#                                        y = mz, 
+#                                        colour = log10(int)), 
+#                                    shape = 19, 
+#                                    alpha = 0.5) + 
+#                ggplot2::scale_color_gradient(name = 'log10(Intensity)', 
+#                                              low = 'dodgerblue',
+#                                              high = 'orange') +
+#                ggplot2::xlab('Retention time (s)') + 
+#                ggplot2::ylab('m/z') + 
+#                ZZWtool::ZZWTheme() + 
+#                ggplot2::theme(legend.position = c(0.9, 0.8))
+#              
+#              return(temp_plot)
+#              
+#            })
+
+plotFeatureTable <- function(ms1_data){
+  feature_table <- ms1_data$info
+  mean_int <- ms1_data$subject %>% apply(.,1,mean)
+  feature_table <- feature_table %>% 
+    dplyr::mutate(int = mean_int) %>% 
+    dplyr::select(name:rt, int)
+  
+  temp_plot <- ggplot2::ggplot(feature_table) + 
+    ggplot2::geom_point(ggplot2::aes(x = rt, 
+                                     y = mz, 
+                                     colour = log10(int)), 
+                        shape = 19, 
+                        alpha = 0.5) + 
+    ggplot2::scale_color_gradient(name = 'log10(Intensity)', 
+                                  low = 'dodgerblue',
+                                  high = 'orange') +
+    ggplot2::xlab('Retention time (s)') + 
+    ggplot2::ylab('m/z') + 
+    ZZWTheme() + 
+    ggplot2::theme(legend.position = c(0.9, 0.8))
+  
+  return(temp_plot)
+}
+
+load('./ms1_data')
+plotFeatureTable(ms1_data = ms1_data)
+
+```
+<center>**Figure 1.**  Overview of mz-rt feature profile.</center>
+
+
+---
+
+### <font color = 'dodgerblue'>**Metabolite annotation**</font>
+
+#### **1. Annotation overview**
+- A total of `r load('./annotation_summary.RData'); annotation_summary$n_feature_id` features with `r annotation_summary$n_met_id` metabolites were putatively annotated by MetDNA2, covering `r nrow(annotation_summary$summary_table)` different confidence levels.
+
+<br>
+
+<center>**Table 2**. Statistics of putative metabolites</center>
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+load('./annotation_summary.RData')
+knitr::kable(annotation_summary$summary_table, format = 'markdown')
+
+```
+<br>
+```{r, echo=FALSE,  message=FALSE, warning=FALSE, fig.align = 'center', results = 'hide'}
+library(dplyr)
+load('./annotation_summary.RData')
+
+temp_data <- annotation_summary$summary_table %>%
+  dplyr::mutate(Label = dplyr::case_when(
+    `Confidence level` %in% c('level1', 'level2', 'level3.1') ~ 'Known metabolite',
+    `Confidence level` == 'level3.2' ~ 'Unknown metabolite',
+    `Confidence level` == 'level4' ~ 'Predicted formula')) %>%
+  dplyr::select(Label, `Confidence level`, `Annotation number`) %>%
+  dplyr::rename('type1' = Label, 'type2' = 'Confidence level', 'value' = 'Annotation number')
+
+
+ZZWMultiDeckPiePlot(raw_data = temp_data, mode = 'double') +
+  ggplot2::scale_fill_discrete(name = 'Label')
+
+```
+
+<center>**Figure 2.** Distribution of putative metabolites among different level</center>
+
+
+#### **2. Initial seed annotation**
+- A total of `r load('./annotation_summary.RData'); annotation_summary$n_feature_id_initial` feature with `r annotation_summary$n_met_id_initial` metabolites were annotated with spectral library
+- Level 1 annotations (Exp. m/z, Exp. RT and Exp. MS/MS): `r annotation_summary$n_met_id_initial_level1`
+- Level 2 annotations (Exp. m/z and Exp. MS/MS): `r annotation_summary$n_met_id_initial_level2`
+
+`r if(!params$is_rt_calibration) {"\\begin{comment}"}`
+```{r, echo=FALSE,  message=FALSE, warning=FALSE, fig.align = 'center', results = 'hide'}
+
+# setGeneric(name = 'plotRtCalibration',
+#            def = function(
+#              result_rt_calibration
+#            ){
+#              
+#              temp_data <- result_rt_calibration$training.data
+#              cpds <- rownames(temp_data)
+#              temp_data <- temp_data %>% dplyr::mutate(cpd = cpds)
+#              
+#              rt_recalibration_model <- result_rt_calibration$rt.recalibration.model
+#              r2 <- lm(rt_recalibration_model$fitted~temp_data$exp.rt)
+#              r2 <- round(summary(r2)$r.squared, digits = 4)
+#              RMSE <- round(sqrt(mean((summary(rt_recalibration_model)$residuals)^2)),
+#                            digits = 4)
+#              
+#              temp_plot <- ggplot2::ggplot(temp_data) +
+#                ggplot2::geom_smooth(ggplot2::aes(x = ref.rt, y = exp.rt), 
+#                                     method = 'loess', se = FALSE, colour = 'black', size = 0.5) + 
+#                ggplot2::geom_point(ggplot2::aes(x = ref.rt, y = exp.rt, colour = cpd), shape = 19) + 
+#                ggplot2::xlab("Reference RT of RTQC (s)") + 
+#                ggplot2::ylab("Experimental RT of RTQC (s)") + 
+#                ggplot2::ggtitle("Calibration Model") +
+#                # ggplot2::scale_colour_discrete()
+#                ggplot2::annotate(geom = 'text', 
+#                                  x = 0.1*max(temp_data$ref.rt), 
+#                                  y = 0.9*max(temp_data$exp.rt), 
+#                                  label = paste0(c('R2=', r2), collapse = '')) +
+#                ZZWtool::ZZWTheme() + 
+#                ggplot2::theme(legend.position = c(0.8, 0.4))
+#              
+#                return(temp_plot)
+#            })
+
+plotRtCalibration <- function(
+             result_rt_calibration
+           ){
+             
+             temp_data <- result_rt_calibration$training.data
+             cpds <- rownames(temp_data)
+             temp_data <- temp_data %>% dplyr::mutate(cpd = cpds)
+             
+             rt_recalibration_model <- result_rt_calibration$rt.recalibration.model
+             r2 <- lm(rt_recalibration_model$fitted~temp_data$exp.rt)
+             r2 <- round(summary(r2)$r.squared, digits = 4)
+             RMSE <- round(sqrt(mean((summary(rt_recalibration_model)$residuals)^2)),
+                           digits = 4)
+             
+             temp_plot <- ggplot2::ggplot(temp_data) +
+               ggplot2::geom_smooth(ggplot2::aes(x = ref.rt, y = exp.rt), 
+                                    method = 'loess', se = FALSE, colour = 'black', size = 0.5) + 
+               ggplot2::geom_point(ggplot2::aes(x = ref.rt, y = exp.rt, colour = cpd), shape = 19) + 
+               ggplot2::xlab("Reference RT of RTQC (s)") + 
+               ggplot2::ylab("Experimental RT of RTQC (s)") + 
+               ggplot2::ggtitle("Calibration Model") +
+               # ggplot2::scale_colour_discrete()
+               ggplot2::annotate(geom = 'text', 
+                                 x = 0.1*max(temp_data$ref.rt), 
+                                 y = 0.9*max(temp_data$exp.rt), 
+                                 label = paste0(c('R2=', r2), collapse = '')) +
+               ZZWTheme() + 
+               ggplot2::theme(legend.position = c(0.8, 0.4))
+             
+               return(temp_plot)
+           }
+
+temp_plot <- try({
+  load('./rt_calibration_result')
+  temp_plot <- plotRtCalibration(result_rt_calibration = result)
+}, 
+silent = TRUE)
+
+temp_plot
+```
+<center>**Figure 3.** RT calibration plot</center>
+`r if(!params$is_rt_calibration) {"\\end{comment}"}`
+
+#### **3. Recursive annotation**
+- A total of `r load('./recursive_summary.RData'); recursive_summary$n_feature_recursive` feature with `r recursive_summary$n_annotation_recursive` annotations were obtained via `r recursive_summary$n_round` recursive steps.
+- `r recursive_summary$n_seed` KEGG metabolite used as seed metabolites
+- `r recursive_summary$n_keeg_met` known metabolites (level 3.1)
+- `r recursive_summary$n_curated_unknown_met` curated unknown metabolites (level 3.2)
+
+<br>
+
+```{r, echo=FALSE,  message=FALSE, warning=FALSE, fig.align = 'center', results = 'hide'}
+
+
+# setGeneric(name = 'ZZWDoubleYAxisPlot',
+#            def = function(raw_data,
+#                           ylim_prim = NULL,
+#                           ylim_sec = NULL,
+#                           y_axis_name_prim = 'y_axis_prim',
+#                           y_axis_name_sec = 'y_axis_sec'
+#                           ){
+#              if (!all(colnames(raw_data) %in% c('x', 'y1', 'y2', 'type'))) {
+#                stop('The raw_data needs contain these columns: x, y1, y2, type')
+#              }
+# 
+#              if (length(ylim_prim) == 0) {
+#                ylim_prim <- c(min(raw_data$y1)*0.95, max(raw_data$y1)*1.05)
+#              }
+# 
+#              if (length(ylim_sec) == 0) {
+#                ylim_sec <- c(min(raw_data$y2)*0.95, max(raw_data$y2)*1.05)
+#              }
+# 
+#              b <- diff(ylim_prim)/diff(ylim_sec)
+#              a <- b*(ylim_prim[1] - ylim_sec[1])
+# 
+#              temp_plot <- ggplot2::ggplot(raw_data) +
+#                ggplot2::geom_bar(ggplot2::aes(x = x, y = y1, fill = type), stat = 'identity', position = 'dodge') +
+#                ggplot2::geom_line(ggplot2::aes(x = x, y = a + y2*b), colour = 'black') +
+#                ggplot2::geom_point(ggplot2::aes(x = x, y = a + y2*b)) +
+#                ggplot2::scale_y_continuous(
+#                  y_axis_name_prim,
+#                  sec.axis = ggplot2::sec_axis(~ (. - a)/b, name = y_axis_name_sec)
+#                ) +
+#                ZZWtool::ZZWTheme(type = 'classic')
+# 
+#              return(temp_plot)
+# 
+#            })
+
+
+ZZWDoubleYAxisPlot <- function(raw_data,
+                               ylim_prim = NULL,
+                               ylim_sec = NULL,
+                               y_axis_name_prim = 'y_axis_prim',
+                               y_axis_name_sec = 'y_axis_sec'
+){
+  if (!all(colnames(raw_data) %in% c('x', 'y1', 'y2', 'type'))) {
+    stop('The raw_data needs contain these columns: x, y1, y2, type')
+  }
+  
+  if (length(ylim_prim) == 0) {
+    ylim_prim <- c(min(raw_data$y1)*0.95, max(raw_data$y1)*1.05)
+  }
+  
+  if (length(ylim_sec) == 0) {
+    ylim_sec <- c(min(raw_data$y2)*0.95, max(raw_data$y2)*1.05)
+  }
+  
+  b <- diff(ylim_prim)/diff(ylim_sec)
+  a <- b*(ylim_prim[1] - ylim_sec[1])
+  
+  temp_plot <- ggplot2::ggplot(raw_data) +
+    ggplot2::geom_bar(ggplot2::aes(x = x, y = y1, fill = type), stat = 'identity', position = 'dodge') +
+    ggplot2::geom_line(ggplot2::aes(x = x, y = a + y2*b), colour = 'black') +
+    ggplot2::geom_point(ggplot2::aes(x = x, y = a + y2*b)) +
+    ggplot2::scale_y_continuous(
+      y_axis_name_prim,
+      sec.axis = ggplot2::sec_axis(~ (. - a)/b, name = y_axis_name_sec)
+    ) +
+    ZZWTheme(type = 'classic')
+  
+  return(temp_plot)
+  
+}
+
+library(dplyr)
+id_result <- recursive_summary$table_recursive
+unique_rounds <- unique(id_result$level) %>% as.numeric() %>% sort()
+max_rounds <- max(unique_rounds)
+
+id_result_known <- id_result %>% dplyr::filter(cpd_type == 'known_known')
+
+stat_num <- pbapply::pblapply(unique_rounds, function(i){
+  num_annotation <- id_result_known %>% 
+    # dplyr::filter(level == i) %>% 
+    dplyr::filter(level %in% seq(i)) %>% 
+    distinct(to, .keep_all = TRUE) %>%
+    count(cpd_type) %>% 
+    mutate(label = 'num_annotation',
+           round = i)
+  
+  num_seed <- id_result_known %>% 
+    # dplyr::filter(level == i) %>%
+    dplyr::filter(as.seed.round == i) %>%
+    distinct(to, .keep_all = TRUE) %>%
+    count(cpd_type) %>% 
+    mutate(label = 'num_seed', 
+           round = i)
+  
+  result <- num_annotation %>% bind_rows(num_seed)
+  result
+})
+
+stat_num <- stat_num %>% bind_rows()  
+
+
+# overview of each step annotation
+stat_num_annotation <- stat_num %>% 
+  dplyr::filter(label == 'num_annotation') %>%
+  group_by(round) %>%
+  summarise(n = sum(n)) %>%
+  ungroup() 
+
+
+stat_num_seed <- stat_num %>%
+  dplyr::filter(label == 'num_seed') %>%
+  group_by(round) %>%
+  summarise(n = sum(n)) %>%
+  ungroup()
+
+temp_data <- stat_num_annotation %>% 
+  dplyr::left_join(stat_num_seed, by = 'round') %>%
+  dplyr::rename('annotation_n' = n.x,
+                'seed_n' = n.y) %>% 
+  dplyr::select(round, seed_n, annotation_n) %>% 
+  tidyr::replace_na(list(seed_n = 0)) %>% 
+  dplyr::mutate(type = 'known')
+  # dplyr::mutate(type = dplyr::case_when(round == 1 ~ 'seed',
+  #                                       round != 1 ~ 'recursive_annotated'))
+
+colnames(temp_data) <- c('x', 'y1', 'y2', 'type')
+
+temp_plot <- ZZWDoubleYAxisPlot(raw_data = temp_data, 
+                   y_axis_name_prim = 'No. of seed metabolites', 
+                   y_axis_name_sec = 'No. of cumulative metabolites') + 
+  ggplot2::scale_fill_manual(values = c('known' = 'dodgerblue')) +
+  ggplot2::xlab('round') + 
+  ggplot2::scale_x_continuous(name = 'round', breaks = seq(1, max_rounds, by = 2), labels = seq(1, max_rounds, by = 2)-1) + 
+  # ggplot2::annotate(geom = 'text', x = temp_data$x, y = 1.05*temp_data$y1, label = temp_data$y2) +
+  ggplot2::theme(legend.position = c(0.9, 0.3))
+
+
+temp_plot
+
+```
+<br>
+
+<center>**Figure 4.** Known metabolites in recursive annotation </center> 
+
+
+---
+
+### <font color = 'dodgerblue'>**3. Annotation credential**</font>
+#### **1. Overview of annotation credential**
+- A total of `r load('./credential_summary.RData'); credential_summary$n_feature_final` feature with `r credential_summary$n_annotation_final` annotation out of `r credential_summary$n_feature_final` features with `r credential_summary$n_annotation_initial` annotations (initial seed annotation and recursive annotation) were credentialed.
+
+<center>**Table 3**. Statistics of annotation credential</center>
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+load('./credential_summary.RData')
+knitr::kable(credential_summary$summary_overview, format = 'markdown')
+```
+
+
+#### **2. Credential 1: Adduct, neutral loss, isotope, in-source fragment**
+- A total of `r load('./credential_summary.RData'); credential_summary$n_credential_feature_pg` feature with `r credential_summary$n_credential_feature_annotations` annotation out of `r credential_summary$n_feature_final` features with `r credential_summary$n_annotation_initial` annotations (initial seed annotation and recursive annotation) in this step.
+- These credentialed putative annotations cover `r credential_summary$summary_credential_pg[[1]]` features and `r credential_summary$summary_credential_pg[[2]]` related annotations as figure 6.
+
+<br>
+
+```{r, echo=FALSE,  message=FALSE, warning=FALSE, fig.align = 'center', results = 'hide'}
+load('./credential_summary.RData')
+
+temp_data <- credential_summary$summary_credential_pg %>% 
+  dplyr::select('No. of isotope':'No. of ISF') %>% 
+  tidyr::pivot_longer(cols = dplyr::everything(),
+                      names_to = 'type', 
+                      values_to = 'number')
+temp_plot <- ggplot2::ggplot(temp_data) + 
+  ggplot2::geom_bar(ggplot2::aes(x = type, y = number, fill = type), stat = 'identity') + 
+  ggplot2::xlab('Type') + 
+  ggplot2::ylab('Number') + 
+  ZZWTheme() +
+  ggplot2::theme(legend.position = 'none')
+
+temp_plot
+```
+<center>**Figure 5.** Statistics of adduct, neutral loss, isotope, in-source fragment annotation </center> 
+<br>
+
+#### **3. Credential 2: Formula**
+- A total of `r load('./credential_summary.RData'); credential_summary$n_feature_final` feature with `r credential_summary$n_annotation_final` annotation out of `r credential_summary$n_credential_feature_pg` feature with `r credential_summary$n_credential_feature_annotations` annotation were credentialed in this step.
+- A total of `r credential_summary$n_credential_filter_formula` annotations were assigned as level4 due to the conflict with predicted formula
+
+<br>
+```{r, echo=FALSE,  message=FALSE, warning=FALSE, fig.align = 'center', results = 'hide'}
+load('./credential_summary.RData')
+
+nums <- c(credential_summary$n_annotation_final, credential_summary$n_credential_filter_formula)
+type <- c('credentialed formula', 'uncredentialed formula')
+temp_data <- data.frame(type = type, nums = nums, stringsAsFactors = F)
+temp_plot <- ZZWMultiDeckPiePlot(raw_data = temp_data, mode = 'single') +
+  ggplot2::scale_fill_manual(values = c('credentialed formula' = 'dodgerblue',
+                                        'uncredentialed formula' = 'gray')) +
+  ggplot2::theme(legend.position = c(0.5, 0.5))
+
+temp_plot
+```
+<center>**Figure 6.** Formula prediction and qualification </center> 
+<br>
+
+`r if(!params$is_bio_interpret) {"\\begin{comment}"}`
+---
+
+### <font color = 'dodgerblue'>**4. Biology interpretation**</font>
+- A total of `r test <- try({load('./bio_interp_summary.RData')}, silent = TRUE); ifelse(class(test) != 'try-error', bio_interp_summary$n_sig_feature, 0)` features are significantly changed (P-value <= 0.05, fold-change >= 1.25).
+- `r ifelse(class(test) != 'try-error', bio_interp_summary$n_sig_pathway, 0)` pathways has been enriched in KEGG.
+
+<br>
+
+:::: {style="display: flex;"}
+
+::: {}
+```{r, echo=FALSE,  message=FALSE, warning=FALSE, fig.align = 'center', results = 'hide'}
+
+# setGeneric(name = 'plotVolcano',
+#            def = function(
+#              raw_data,
+#              p_cutoff = 0.05,
+#              fc_cutoff = 1.25,
+#              log_tran = c('log2', 'log10')
+#            ){
+#              log_tran <- match.arg(log_tran)
+#              colnames(raw_data) <- c('feature', 'p_values', 'fold_changes')
+# 
+#              switch (log_tran,
+#                      'log2' = {
+#                        log_p <- -log10(raw_data$p_values)
+#                        log_fc <- log2(raw_data$fold_changes)
+#                      },
+#                      'log10' = {
+#                        log_p <- -log10(raw_data$p_values)
+#                        log_fc <- log10(raw_data$fold_changes)
+#                      }
+#              )
+# 
+#              volcano_result <- raw_data %>%
+#                dplyr::mutate(log_p = log_p,
+#                              log_fc = log_fc) %>%
+#                dplyr::mutate(is_sig=dplyr::case_when(
+#                  (p_values <= p_cutoff) & (fold_changes >= fc_cutoff) ~ 'Increase',
+#                  (p_values <= p_cutoff) & (fold_changes <= (1/fc_cutoff)) ~ 'Decrease',
+#                  (p_values > p_cutoff) | (fold_changes > (1/fc_cutoff)) | (fold_changes > fc_cutoff) ~ 'Not_significant'
+#                ))
+# 
+#              volcano_plot <- ggplot2::ggplot(data = volcano_result) +
+#                ggplot2::geom_point(ggplot2::aes(x = log_fc, y = log_p, colour = is_sig)) +
+#                ggplot2::geom_hline(yintercept = -log10(p_cutoff), linetype=2) +
+#                ggplot2::geom_vline(xintercept = ifelse(log_tran=='log2', log2(fc_cutoff), log10(fc_cutoff)),
+#                                    linetype = 2) +
+#                ggplot2::geom_vline(xintercept = ifelse(log_tran=='log2', -log2(fc_cutoff), -log10(fc_cutoff)),
+#                                    linetype = 2) +
+#                ggplot2::scale_color_manual(name = 'Group',
+#                                            values = c('Increase' = 'tomato',
+#                                                       'Decrease' = 'dodgerblue',
+#                                                       'Not_significant' = 'gray'),
+#                                            label = c('Increase' = 'Increase',
+#                                                      'Decrease' = 'Decrease',
+#                                                      'Not_significant' = 'Not significant')) +
+#                ggplot2::xlab(paste0(log_tran, '(Fold-change)')) +
+#                ggplot2::ylab(paste0('-log10(P-value)')) +
+#                ZZWtool::ZZWTheme() +
+#                ggplot2::theme(legend.position = c(0.8, 0.8))
+# 
+#              return(volcano_plot)
+# 
+#            }
+# )
+
+plotVolcano <- function(
+  raw_data,
+  p_cutoff = 0.05,
+  fc_cutoff = 1.25,
+  log_tran = c('log2', 'log10')
+){
+  log_tran <- match.arg(log_tran)
+  colnames(raw_data) <- c('feature', 'p_values', 'fold_changes')
+  
+  switch (log_tran,
+          'log2' = {
+            log_p <- -log10(raw_data$p_values)
+            log_fc <- log2(raw_data$fold_changes)
+          },
+          'log10' = {
+            log_p <- -log10(raw_data$p_values)
+            log_fc <- log10(raw_data$fold_changes)
+          }
+  )
+  
+  volcano_result <- raw_data %>%
+    dplyr::mutate(log_p = log_p,
+                  log_fc = log_fc) %>%
+    dplyr::mutate(is_sig=dplyr::case_when(
+      (p_values <= p_cutoff) & (fold_changes >= fc_cutoff) ~ 'Increase',
+      (p_values <= p_cutoff) & (fold_changes <= (1/fc_cutoff)) ~ 'Decrease',
+      (p_values > p_cutoff) | (fold_changes > (1/fc_cutoff)) | (fold_changes > fc_cutoff) ~ 'Not_significant'
+    ))
+  
+  volcano_plot <- ggplot2::ggplot(data = volcano_result) +
+    ggplot2::geom_point(ggplot2::aes(x = log_fc, y = log_p, colour = is_sig)) +
+    ggplot2::geom_hline(yintercept = -log10(p_cutoff), linetype=2) +
+    ggplot2::geom_vline(xintercept = ifelse(log_tran=='log2', log2(fc_cutoff), log10(fc_cutoff)),
+                        linetype = 2) +
+    ggplot2::geom_vline(xintercept = ifelse(log_tran=='log2', -log2(fc_cutoff), -log10(fc_cutoff)),
+                        linetype = 2) +
+    ggplot2::scale_color_manual(name = 'Group',
+                                values = c('Increase' = 'tomato',
+                                           'Decrease' = 'dodgerblue',
+                                           'Not_significant' = 'gray'),
+                                label = c('Increase' = 'Increase',
+                                          'Decrease' = 'Decrease',
+                                          'Not_significant' = 'Not significant')) +
+    ggplot2::xlab(paste0(log_tran, '(Fold-change)')) +
+    ggplot2::ylab(paste0('-log10(P-value)')) +
+    ZZWTheme() +
+    ggplot2::theme(legend.position = c(0.8, 0.8))
+  
+  return(volcano_plot)
+  
+}
+
+
+temp_plot <- try({
+  load('./result_stat.RData')
+  temp_plot <- plotVolcano(raw_data = result_stat, p_cutoff = 0.05, fc_cutoff = 1.25)
+}, 
+silent = TRUE)
+
+temp_plot
+```
+<center>**Figure 7.** Vocano plot </center> 
+<br>
+:::
+
+
+::: {}
+
+```{r, echo=FALSE,  message=FALSE, warning=FALSE, fig.align = 'center', results = 'hide'}
+
+# setGeneric(name = 'plotPathwayScatter',
+#            function(
+#              result_pathway_enrichment,
+#              p_cutoff = 0.05,
+#              p_adjust = TRUE
+#            ){
+#              temp_data <- result_pathway_enrichment %>%
+#                tibble::rownames_to_column(var = 'pathway_name') %>%
+#                tidyr::separate(pathway_name, into = c('pathway_name', 'pathway_id'), sep = ';') %>%
+#                tidyr::separate(pathway_name, into = c('pathway_name', 'temp'), sep = ' - ') %>%
+#                dplyr::select(-temp) %>%
+#                # tidyr::unite(pathway_name, pathway_id, col = 'pathway_name', sep = ';') %>%
+#                dplyr::mutate(pcg_overlap = (Overlap/Pathway.length)*100)
+# 
+#              if (p_adjust) {
+#                temp_data <- temp_data %>%
+#                  dplyr::mutate(label = dplyr::case_when(q.value <= p_cutoff ~ 'Significant',
+#                                                         q.value > p_cutoff ~ 'Not_significant')) %>%
+#                  dplyr::mutate(log_p = -log10(q.value))
+#              } else {
+#                temp_data <- temp_data %>%
+#                  dplyr::mutate(label = dplyr::case_when(p.value <= p_cutoff ~ 'Significant',
+#                                                         p.value > p_cutoff ~ 'Not_significant')) %>%
+#                  dplyr::mutate(log_p = -log10(p.value))
+#              }
+# 
+#              idx <- which(temp_data$log_p >= -log10(0.05))
+# 
+#              if (length(idx) > 0) {
+#                temp_plot <- ggplot2::ggplot(temp_data) +
+#                  ggplot2::geom_point(ggplot2::aes(x = pcg_overlap,
+#                                                   y = log_p,
+#                                                   size = Pathway.length,
+#                                                   colour = label)) +
+#                  ggplot2::scale_size(range = c(1, 15)) +
+#                  ggplot2::scale_colour_manual(values = c('Significant' = 'tomato',
+#                                                          'Not_significant' = 'gray')) +
+#                  ggplot2::geom_hline(yintercept = -log10(p_cutoff),
+#                                      linetype = 'dashed') +
+#                  ggplot2::xlab('Overlap (%)') +
+#                  ggplot2::ylab('-log10(P-value)') +
+#                  ggplot2::annotate(geom = 'text',
+#                                    x = temp_data$pcg_overlap[idx],
+#                                    y = temp_data$log_p[idx],
+#                                    label = temp_data$pathway_name[idx]) +
+#                  ZZWtool::ZZWTheme() +
+#                  ggplot2::theme(legend.position = c(0.15, 0.7))
+#              } else {
+#                temp_plot <- ggplot2::ggplot(temp_data) +
+#                  ggplot2::geom_point(ggplot2::aes(x = pcg_overlap,
+#                                                   y = log_p,
+#                                                   size = Pathway.length,
+#                                                   colour = label)) +
+#                  ggplot2::scale_size(range = c(1, 15)) +
+#                  ggplot2::scale_colour_manual(values = c('Significant' = 'tomato',
+#                                                          'Not_significant' = 'gray')) +
+#                  ggplot2::geom_hline(yintercept = -log10(p_cutoff),
+#                                      linetype = 'dashed') +
+#                  ggplot2::xlab('Overlap (%)') +
+#                  ggplot2::ylab('-log10(P-value)') +
+#                  # ggplot2::annotate(geom = 'text',
+#                  #                   x = temp_data$pcg_overlap[idx],
+#                  #                   y = temp_data$log_p[idx],
+#                  #                   label = temp_data$pathway_name[idx]) +
+#                  ZZWtool::ZZWTheme() +
+#                  ggplot2::theme(legend.position = c(0.15, 0.65))
+#              }
+# 
+# 
+#              return(temp_plot)
+# 
+#            })
+
+plotPathwayScatter <- function(
+             result_pathway_enrichment,
+             p_cutoff = 0.05,
+             p_adjust = TRUE
+           ){
+             temp_data <- result_pathway_enrichment %>%
+               tibble::rownames_to_column(var = 'pathway_name') %>%
+               tidyr::separate(pathway_name, into = c('pathway_name', 'pathway_id'), sep = ';') %>%
+               tidyr::separate(pathway_name, into = c('pathway_name', 'temp'), sep = ' - ') %>%
+               dplyr::select(-temp) %>%
+               # tidyr::unite(pathway_name, pathway_id, col = 'pathway_name', sep = ';') %>%
+               dplyr::mutate(pcg_overlap = (Overlap/Pathway.length)*100)
+
+             if (p_adjust) {
+               temp_data <- temp_data %>%
+                 dplyr::mutate(label = dplyr::case_when(q.value <= p_cutoff ~ 'Significant',
+                                                        q.value > p_cutoff ~ 'Not_significant')) %>%
+                 dplyr::mutate(log_p = -log10(q.value))
+             } else {
+               temp_data <- temp_data %>%
+                 dplyr::mutate(label = dplyr::case_when(p.value <= p_cutoff ~ 'Significant',
+                                                        p.value > p_cutoff ~ 'Not_significant')) %>%
+                 dplyr::mutate(log_p = -log10(p.value))
+             }
+
+             idx <- which(temp_data$log_p >= -log10(0.05))
+
+             if (length(idx) > 0) {
+               temp_plot <- ggplot2::ggplot(temp_data) +
+                 ggplot2::geom_point(ggplot2::aes(x = pcg_overlap,
+                                                  y = log_p,
+                                                  size = Pathway.length,
+                                                  colour = label)) +
+                 ggplot2::scale_size(range = c(1, 15)) +
+                 ggplot2::scale_colour_manual(values = c('Significant' = 'tomato',
+                                                         'Not_significant' = 'gray')) +
+                 ggplot2::geom_hline(yintercept = -log10(p_cutoff),
+                                     linetype = 'dashed') +
+                 ggplot2::xlab('Overlap (%)') +
+                 ggplot2::ylab('-log10(P-value)') +
+                 ggplot2::annotate(geom = 'text',
+                                   x = temp_data$pcg_overlap[idx],
+                                   y = temp_data$log_p[idx],
+                                   label = temp_data$pathway_name[idx]) +
+                 ZZWTheme() +
+                 ggplot2::theme(legend.position = c(0.15, 0.7))
+             } else {
+               temp_plot <- ggplot2::ggplot(temp_data) +
+                 ggplot2::geom_point(ggplot2::aes(x = pcg_overlap,
+                                                  y = log_p,
+                                                  size = Pathway.length,
+                                                  colour = label)) +
+                 ggplot2::scale_size(range = c(1, 15)) +
+                 ggplot2::scale_colour_manual(values = c('Significant' = 'tomato',
+                                                         'Not_significant' = 'gray')) +
+                 ggplot2::geom_hline(yintercept = -log10(p_cutoff),
+                                     linetype = 'dashed') +
+                 ggplot2::xlab('Overlap (%)') +
+                 ggplot2::ylab('-log10(P-value)') +
+                 # ggplot2::annotate(geom = 'text',
+                 #                   x = temp_data$pcg_overlap[idx],
+                 #                   y = temp_data$log_p[idx],
+                 #                   label = temp_data$pathway_name[idx]) +
+                 ZZWTheme() +
+                 ggplot2::theme(legend.position = c(0.15, 0.65))
+             }
+
+
+             return(temp_plot)
+
+           }
+
+temp_plot <- try({
+  load('./result_pathway_enrichment.RData')
+  temp_plot <- plotPathwayScatter(result_pathway_enrichment = result_pathway_enrichment, 
+                                  p_cutoff = 0.05, p_adjust = FALSE)
+}, 
+silent = TRUE)
+
+temp_plot
+
+```
+<center>**Figure 8.** Pathway enrichment scatter </center> 
+<br>
+
+:::
+
+::::
+`r if(!params$is_bio_interpret) {"\\end{comment}"}`
+
+<br>
+<br>
+
+
+<center> Copyright © 2020-2021 MetDNA2 Development Team </center>

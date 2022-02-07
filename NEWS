@@ -1,0 +1,590 @@
+Version 0.1.2 (20200812)
+--------------
+- initial verison of annotation credential
+o add authenticatePeakGroupCredential
+o add convertSemiTargetedResult2LongTable
+o add authenticateFormulaCredential
+o add authenticateAnnotationCredential
+
+Version 0.1.3 (20200815)
+--------------
+o fix bugs errors authenticatePeakGroupCredential & authenticateFormulaCredential
+(errors: missing ms2 spec)
+
+
+Version 0.1.4 (20200925)
+--------------
+o add function of RecursiveAnnotationInitialSeed (ms2Annotation in MetDNA1)
+
+
+Verison 0.2.0 (20201006)
+--------------
+o add the frame of RecursiveAnnotationMRN (metABM and relate parts)
+o fix some bugs in readMs2
+
+Verison 0.2.1 (20201017)
+--------------
+o rewrite the frame of RecursiveAnnotationIniitialSeed
+o combine annotationCredential with Recursive Annotation
+
+Verison 0.2.2 (20201019)
+--------------
+o fit linux platform (GenForm)
+o modify AnnotationCredential order (Seed first)
+o fix some bugs in RescursiveAnnotationMRN
+o fix bugs error report for adduct types 'M+' and 'M-' in checkElements
+
+Version 0.2.3 (20201024)
+--------------
+o fix bugs in concisePeakGroup2PeakGroup (change peak name filter to peak group name filter)
+
+Version 0.2.31 (20201027)
+--------------
+o fix bugs in prepare prepareMetDNA2 (correct "M+H-2H2O" to "M-2H2O+H")
+
+Version 0.2.4 (20201103)
+--------------
+o add RT calibration (Update RT calibration table, and RT library)
+o update cpd_emrn, lib_adduct_nl, lib_formula
+o add a choice to select forward annotation as initial seed
+
+Version 0.2.41 (20201105)
+--------------
+o add generateMetDNA2AnnotationResult part to merge initial annotation, recursive annotation and annotation credential results
+o initial seed annotation: reserve candidates whose RT/CCS error within the tolerance or NA
+o add plotNeighbor function in annotateNeighbor
+o add package information export and data check part
+o add pre-trained RT model for Amide12min and Amide23min
+
+Version 0.2.42 (20201109)
+--------------
+o fix some bugs (obj missing)
+o fix some bugs (correct tibble error)
+
+Version 0.2.43 (20201110)
+--------------
+o fix versions of import packages
+o fix bugs in formula prediction (replace rela_path with absolute_path)
+o fix bugs in generateResultTable4AllAnnotation (fix column type)
+
+Version 0.2.44 (20201113)
+--------------
+o Add a choice is_pred_formula_all for predict formula for all peak groups
+o Add direction parameter in final result merge
+
+Version 0.2.45 (20201117)
+--------------
+o Add sample-sample correlation (ssc) filtering for adductAnnotation, neutralLossAnnotation, but not apply for isotopeAnnotation and isfAnnotation
+o Add rule limitation for adductAnnotation and neutralLossAnnotation
+o Add a parameter to limit topN fragment of base peak for isfAnnotation
+o Modify the mz match tolerance in credential (Old: 10pm, 500Da; New: 25ppm, 400Da)
+o Change ms2 match function (Old: nl_ms2 vs base_ms2; New: base_ms2 vs nl_ms2)
+o Remove peak groups first which not meet rule limitation (e.g. [2M+H]+ without [M+H]+), and defined as type0
+o Update lib_adduct_nl (disable uncommon adduct and nl in credential)
+
+Version 0.2.46 (20201124)
+--------------
+o Add base formula result into all peaks in the peak group during merge annotation results
+o Add isotope column in id_merge
+o Modify processing logic in is_credential_pg (assign TRUE when the label same with the annotated peak group, not base peak)
+o Update formula result when is_pred_formula_all equals TRUE
+
+
+Version 0.2.47 (20201130)
+--------------
+o Fix the bug in credential: perform the credential for annotations which are in initial seeds but not in KEGG
+o Fix the bug in readInitialSeed: adduct error for annotation whoes KEGG_IDs is 'NA;NA;C00047'
+o Fix the bug in MSP data importing and processing
+o Fix the bug in plotNeighbor: feature with one fragment lead NULL ms2 score (skip it temporarily)
+
+
+Version 0.2.5 (20201202)
+--------------
+o Update zhuMetLib (correct 48 error compound information, and add 5 compounds in 200STDs)
+o Update md_zhumetlib
+o Fix some bugs in credential: para dp_cutoff not passing
+
+Version 0.2.51 (20201202)
+--------------
+o Modify absolute RT range to combined RT range (RT <= 500s, rt_tol=30s; RT>500, rt_tol=6%)
+
+
+Version 0.2.52 (20201212)
+--------------
+o Update zhuMetLib (correct meta info in different CE)
+
+
+Version 0.3.00 (20201214)
+--------------
+o Modify general workflow: 1. merge initial seed result and recursive result; 2. assign confidence level; 3. perform annotation credential according to confidence level
+o Add RecursiveAnnotationMerge part, MetDNA2Result part
+o Add functions: mergeRecursiveAnnotation, generateMetDNA2AnnoClass, addInitialSeedResult2MetDNA2AnnoClass, addRecursiveResult2MetDNA2AnnoClass, addCredentialResult2MetDNA2AnnoClass, generateResultTable4AllAnnotation, generateMetDNA2AnnotationResult
+o Add type_order for concisePeak2PeakGroup and concisePeakGroup2PeakGroup
+o Export id_effective_with_credential_result
+o Systemically modify the directory names of results
+
+Version 0.3.01 (20201229)
+--------------
+o add space check for path
+
+Version 0.3.10 (20210105)
+--------------
+o add fiehnHilicLib and md_fiehnHilicLib for obitrap data processing
+o add checkPara function
+o modify the related scripts to fit obitrap data processing
+o fix the bugs: error title assign in the plot of initial seed match
+
+Version 0.3.11 (20210107)
+--------------
+o fix the bugs: error in annotation merge (GY)
+
+Version 0.3.20 (20210111)
+--------------
+o assign new confidence system into id_merge_modify and id_merge_modify_wide
+o only keep the highest confidence level annotations in id_merge_modify
+o export id_merge_modify_service for service projects
+o fix some bugs in annotaiton credential
+
+Version 0.4.00 (20210309)
+--------------
+o add module: BiologyInterpretation, BiologyInterpretation
+o update libraries: reaction_pair_network, md_mrn_emrn, cpd_emrn, lib_formula
+o add new libraries: lib_pathway
+o add functions: runSpecMatch, interpretBiology, doStatAnalysis, doUniTest, calcuFoldChange, enrichPathway, mapInChIKey1ToKEGG, quantiPathway
+o add plot functions: plotVolanco, plotPathwayScatter, plotPathwayBar, plotPathwayHeatmap, plotPathwayBoxplot, plotPathwayHeatmapMet
+o change default spectra purification parameter: ppmPrecursor filter (500 -> 400)
+o fix bugs: reverse score filtering but using forward score indeed
+
+Version 0.4.01 (20210310)
+--------------
+o fix some bugs in BiologyInterpretation
+o update in-house database: zhuMetlib (add new MS2), lib_rt (1230->1266), md_zhumetlib (2084->2105)
+o add new in-house database: zhuMetlib_obitrap
+o correct compound formula and information IDs for permanent charged metabolites
+
+Version 0.4.02 (20210311)
+--------------
+o add parameters for zhuMetLib_obitrap
+
+
+Version 0.4.03 (20210312)
+--------------
+o update zhuMetlib_orbitrap V2.2
+o add [M-2H]- in lib_adduct_nl
+o add the export of rt_calibration_result
+
+
+Version 0.4.04 (20210315)
+--------------
+o update lib_ccs (add the pred_ccs for cpd_emrn)
+o add functions: update lib_ccs (add the pred_ccs for cpd_emrn)
+o export matchParam in recursive (matchParam_recursive)
+o export shifted MS2 mirror plot in recursive annotation
+o recode annotateMetaboliteMRN
+
+Version 0.4.05 (20210317)
+--------------
+o recode annotateMetaboliteMRN
+o fix the bugs in multi-threads running during metAnnotation
+o fix some bugs in metAnnotation (Step -> step)
+o modify the export of recursive report to fit IMMS data
+
+Version 0.4.06 (20210318)
+--------------
+o modify functions: mergeRecursiveAnnotation, convertAnnotationTable2InitialId, authenticateAnnotationCredential and related functions
+o add multi-thread runing in peak group annotation
+o add CCS information in peak group annotation
+o fix some bugs in peak group annotation (if multiple peaks annotated in peak group annotation, keep order follow: mass error > rt error > ccs error)
+o modify the export of result table to fit IMMS data
+
+Version 0.4.11 (20210319)
+--------------
+o fix some bugs for orbitrap data from GY
+o fix some bugs for TIMS data from LMD
+
+Version 0.4.12 (20210322)
+--------------
+o fix some bugs in CredentialPeakGroup for orbitrap data from GY
+o fix some bugs in result table output
+
+Version 0.4.13 (20210322)
+--------------
+o fix bugs in ms2 assignment: one ms2 matched multiple ms1, the ms2 was assigned the ms1 name of last index
+o fix bugs in readMS2: passing `instrument` parameter into the readMS2 function
+
+Version 0.4.14 (20210323)
+--------------
+o fix the format of column in credential
+
+Version 0.4.15 (20210323)
+--------------
+o remove parameter `instrument` in the readMS2 and readMGF function
+o change parameter name in combineMs1Ms2: mz_tol->mz_tol_combine_ms1_ms2, rt_tol->rt_tol_combine_ms1_ms2, ccs_tol->ccs_tol_combine_ms1_ms2
+
+Version 0.4.16 (20210324)
+--------------
+o fix bugs in annotateInitialSeed function ('version1' mode)
+o fix bugs in plotNeighbor
+
+Version 0.4.17 (20210326)
+--------------
+o add `test_old_mrn` parameter in annotateMRN function to evaluate the effect of MRN change
+
+Version 0.4.18 (20210326)
+--------------
+o upate MRN v0.5 (remove the limitation of similarity 0.7 for known reaction pairs)
+
+Version 0.4.19 (20210330)
+--------------
+o upate zhuMetlib_obitrap (v3)
+
+Version 0.4.20 (20210331)
+--------------
+o add MetDNA2Report module to export html/pdf report file
+
+Version 0.4.21 (20210401)
+--------------
+o modify report template
+
+Version 0.4.22 (20210402)
+--------------
+o open mz_tol_combine_ms1_ms2 and rt_tol_combine_ms1_ms2 for QE
+o add 'Exploris' instrument item
+o split report template into 'MetDNA2' and 'MetDNA2Extension'
+
+Version 0.4.23 (20210403)
+--------------
+o add generateBioInterpSummary4Report in report template
+o move intermediate data "annotation_initial", "ms2_data.msp", "ms2_data.RData" and peak_table.csv to 03_credential directory
+o update compound information in zhuMetlib and zhuMetlib_obitrap
+
+Version 0.4.24 (20210406)
+--------------
+o change s4 function to s3 in report generation
+
+Version 0.5.00 (20210406)
+--------------
+o remove the intermidiate data in report generation
+o add test_adduct_version for trouble shooting in annotateMRN
+
+Version 0.5.10 (20210407)
+--------------
+o fix bugs in matchMs2WithSpecLib: all fragments larger than the precursor
+o fix bugs in checkQuality: add IMMS instrument
+o fix bugs in checkQuality: generate error if sample information contains >2 groups
+
+Version 0.5.11 (20210408)
+--------------
+o add test_adduct_version in initial seed annotation
+
+Version 0.5.12 (20210408)
+--------------
+o change instrument parameter 'IMMS' to "AgilentDTIMMS", "BrukerTIMS", "Exploris" to "ThermoExploris"
+o change library parameter 'zhuMetLib_obitrap' to "zhuMetLib_orbitrap"
+o add conditional chunk in Rmd report: is_rt_calibration and is_bio_intepret
+
+Version 0.5.13 (20210423)
+--------------
+o add as_seed and as_seed_round in the addInitialSeedResult2MetDNA2AnnoClass, addCredentialResult2MetDNA2AnnoClass, generateResultTable4AllAnnotation, generateMetDNA2AnnotationResult, modifyOutputResult
+o add "test_rm_extra_anno_from_ini_seed" parameter in modifyOutputResult function. It controls whether remove extra annotation records if this feature has adduct or isotope annotations are directly from initial seeds.
+o fix bugs in report generation: if rt calibration or biology interpretation not performed, some intermidate missing.
+o fix bugs in plotNeighbor function.
+
+Version 0.5.20 (20210429)
+--------------
+o fix the bugs in function 'runSpecMatch`: mathced fragment falsely assigned for multiple candidates
+
+Version 0.5.21 (20210508)
+--------------
+o update SpectralTools v0.2.3
+
+Version 0.5.22 (20210510)
+--------------
+o passing mz_tol_ms2 parameter (verion1: 30ppm, version2: 25ppm)
+o update README.md
+o add documents with pkgdown
+o add vignettes 'instruction_of_metdna2'
+o add CIATION file
+
+Version 0.5.23 (20210515)
+--------------
+o add rt_filter and related functions in readInitialAnnotation
+o update version 1 MD (md_mrn_emrn$version1 object)
+o remove test_old_mrn parameter
+
+Version 0.5.24 (20210518)
+--------------
+o fix bugs in parameter passing 'candidate_num'
+
+Version 0.5.25 (20210520)
+--------------
+o fix bugs in uncompleted 'generateMetDNA2Report' call in major function
+
+Version 0.5.26 (20210522)
+--------------
+o fix bugs: correct parameter 'zhuMetLib_obitrap' to 'zhuMetLib_orbitrap', 'Exploris' to 'ThermoExploris'
+
+Version 0.5.27 (20210526)
+--------------
+o fix bugs: modify default absolute cps filtering to 30 from 0 in 'version1' parameter
+o fix bugs: add '[M-H2O-H]-' type under recursiveAnnotationMRN 'version1' condition
+
+Version 0.5.28 (20210527)
+--------------
+o add checkElement to remove unrational formula and adduct pair in annotateMetaboliteMRN function
+
+Version 0.5.29 (20210531)
+--------------
+o fix bugs: unconsist length of confidence/group.group with ids
+o fix bugs: incorrect mz calculation for [M-2H]2-
+
+Version 0.5.30 (20210601)
+--------------
+o fix bugs: add nmol and ncharge parameter in calculateMz to correct mz calculation for [M-2H]2-
+o fix bugs: falsely extract double/triple charge state in calculateMz function
+
+Version 0.5.31 (20210601)
+--------------
+o use m/z in peak_table instead of m/z in MS2 for metAnnotation
+
+Version 0.5.32 (20210602)
+--------------
+o remove [M+CH3COO]- adduct form in version1 condition during recursive annotation
+
+Version 0.6.00 (20210609)
+--------------
+o add peak_group_id in concisePeakGroup2Annotation function
+o modify kept digit in initial seed annotation: mz error (1), rt error (1), ccs error (1), msms score (4)
+o modify MetDNA2Result module to exported files
+
+Version 0.6.10 (20210615)
+--------------
+o update lib_adduct_nl: modify M+ to [M]+, M- to [M]-, [M-H3N+H]+ to [M-NH3+H]+, [M-H3N-H]- to [M-NH3-H]-
+o update zhuMetLib and zhuMetLib_orbitrap to add cation information
+o add adduct/NL/ISF label for isotope annotation using recursive way
+o rename recursive_type to iden_type, id to id_kegg
+o add iden_type label 'MS1 + RT + ExpLib Match' and 'MS1 + ExpLib Match' for level1 and level2 identification respectively
+o keep NA in id_kegg column for identification not included in KEGG
+o only add abc suffix for base peak with more than 1 candidates
+o add quanti information in table_identification_unique
+
+Version 0.6.11 (20210616)
+--------------
+o fix bugs: errors in change [M]+ to M+ in readInitialSeed
+o fix bugs: false base adduct extraction for 2M/3M adducts in generateExportTable function
+o add is_check_cation in initial seed annotation
+o uncheck [M]+ in recursive annotation
+
+Version 0.6.12 (20210618)
+--------------
+o keep inchikey1 redundancy in final result export
+o add stereo_isomer_id, stereo_isomer_name in table_identification
+
+Version 0.6.13 (20210621)
+--------------
+o update zhuMetlib and zhuMetlib_orbitrap (v20210621)
+o apply predicted rt filter for seed selection in version2 condition
+
+Version 0.6.14 (20210624)
+--------------
+o fix bugs: inconsist credential format in generateMetDNA2Annotation function
+
+Version 0.6.15 (20210627)
+--------------
+o fix bugs: return a blank identification table if no metabolite identified in initial seed annotation
+o replace interpretBiology with MetBioInterpretation package
+o modify the exported report to fit the revised exported report
+o add runMetDNA2 to support both positive and negative data analysis
+o add 'both' parameter in generateMetDNA2Report
+o add 'MetDNA2BothPolarity' and 'MetDNA2ExtensionBothPolarity' report template
+o fix bugs: unmatched information for some peaks in mrn.annotation.result file (reported by WHM)
+o modify readMSP function to fit new version MSDIAL software
+
+Version 0.6.16 (20210629)
+--------------
+o add "WatersQTOF" and "WatersTWIMMS" options in instrument parameters
+o update cpd_emrn: add compound names for in-silico metabolites in KEGG
+o replace KEGG ID and compound name for some known in-silico metabolites
+o rename exported tables: "table1_identification.csv", "table2_peak_group.csv", "table3_identification_pair.csv"
+
+Version 0.6.17 (20210630)
+--------------
+o fix bugs: the change of readMSP caused name missing for credentialFormula
+o fix bugs: the error polarity in exported MSP files in credential
+o fix bugs: not find 'table.identification.pair.csv' file
+
+Version 0.6.18 (20210701)
+--------------
+o add a parameter to remove intermediate data
+o fix bugs: inconsist column type in mergeRecursiveAnnotation for MSDIAL data
+o fix bugs: inconsist column type in peak group generation
+
+Version 0.6.19 (20210702)
+--------------
+o fix bugs: not find 'table.identification.pair.csv' file in both mode
+o fix bugs: errors in html report generation for MetDNA2ExtensionBothPolarity
+
+Version 0.6.20 (20210703)
+--------------
+o fix bugs: adduct 'M' in 'version1' recursive_result leads error in credential
+o modify default candidate_num to 5
+o remove test_adduct_version parameter in MetDNA2 and runMetDNA2 functions
+o rename directory 'POS_and_NEG' to 'BOTH' to keep consist with MetDNA
+
+
+Version 0.6.21 (20210705)
+--------------
+o add "version1" parameter to read MRN result for biology interpretation (keep same with MetDNA1)
+o fix bugs: only use significant metabolites in pathway quantafication
+o fix bugs: no pathway name showed in pathway enrichment plot
+
+Version 0.6.22 (20210708)
+--------------
+o modify calibrateRT function to fit the new version RT_recalibration_table
+o judge ms2_type in the working directory instead of 'mgf' (default) in runMetDNA2 function
+
+Version 0.6.23 (20210709)
+--------------
+o change default parameters: dir_Genform to '/GenForm', is_rm_intermediate_data to TRUE
+
+Version 0.6.24 (20210709)
+--------------
+o fix bugs: zhulab candidates (not in KEGG) were falsely deplicated when merging initial seed annotation and recursive annotation
+o fix bugs: '[M]+' and '[M-2H]-' adduct of initial seed were not reserved during credential
+
+Version 0.6.25 (20210710)
+--------------
+o fix bugs: errors in check format for 'RT_recalibration_file.csv'
+o fix bugs: '[M]+' and '[M-2H]-' calculate twice calling convertMz2Adduct for defined '[M]+'
+
+Version 0.6.26 (20210712)
+--------------
+o update depends packages
+o define ZZWtool function in report template instead of calling ZZWtool package
+
+Version 0.6.27 (20210713)
+--------------
+o fix bugs: remove intermediate data for single mode
+o add a parameter is_webserver: force 'extention_step' as '0', turn off all plot functions
+
+Version 0.6.28 (20210715)
+--------------
+o extract ms2_file names with recursive function to keep compatibility with MetProcess2
+o change defalut threads to 4
+
+Version 0.6.30 (20210721)
+--------------
+o add test_evaluation parameter for perform 200STD incubation experiment analysis
+o fix bugs: errors in readMSP for MSP from MetAnalyzer
+
+Version 0.6.31 (20210722)
+--------------
+o modify default use_redun_rm_result parameter as TRUE, and export this parameter
+
+Version 0.6.32 (20210722)
+--------------
+o fix bugs: lib parameters was not changed for orbitrap data
+
+Version 0.6.33 (20210724)
+--------------
+o fix bugs: no significant metabolites leads pathway enrichment error
+o fix bugs: no pathway has > 3 metabolites leads error
+
+Version 0.6.34 (20210724)
+--------------
+o fix bugs: id were falsely replaced for metabolites in zhulab
+o fix bugs: no class enriched leads error
+
+Version 0.6.35 (20210726)
+--------------
+o fix bugs: one group has only one sample cause plot error
+
+Version 0.6.36 (20210727)
+--------------
+o fix bugs: one group has only one sample cause plot error (for negative modes and both modes)
+
+Version 0.6.37 (20210815)
+-------------
+o fix bugs: peak_names were falsely replaced in table 3
+o modify default parameter: is_plot_ms2 to TRUE
+
+Version 0.6.40 (20210823)
+-------------
+o add test_evaluation parameter for perform 46STD and S9 fraction incubation experiment analysis
+
+Version 0.6.41 (20210928)
+-------------
+o update lib_rt and rt_ref to emcompass metlin RP rts
+o add 'MetlinRP' parameter in method_lc variable, and related functions
+
+Version 0.6.42 (20211001)
+-------------
+o fix bugs in no conflict feature group leads error (reported by ZhouYiyang)
+
+Version 0.6.43 (20211015)
+-------------
+o fix bugs in the character '-' existed in name column (reported by ChenJunMiao)
+o fix bugs 'record_rule_filter_peak_group' not found in credential (reported by QiangJia)
+
+Version 0.6.44 (20211018)
+-------------
+o stop the program if feature table contains all-zero features (reported by CaiYuping)
+o ms2 file size shows NA in data importing (reported by CaiYuping)
+
+Version 0.6.50 (20211028)
+-------------
+o add zhuRPLab and zhulabRP RTs
+
+Version 0.6.51 (20211028)
+-------------
+o fix bugs in quantiPathway in both mode (reported by LiuGuangxue)
+
+Version 0.6.52 (20211031)
+-------------
+o fix bugs in zhuRPLab and zhulabRP RTs
+
+Version 0.6.53 (20211101)
+-------------
+o fix bugs in zhuRPLib: character type of monoisotopic mass
+
+Version 0.6.54 (20211101)
+-------------
+o slient bug report in intepretBiology and report
+
+Version 0.6.55 (20211129)
+-------------
+o update zhuRPLib (v3.4) and zhulabRP RTs
+
+Version 0.6.56 (20211201)
+-------------
+o update zhulabRP RTs (fix bug update of v0.6.55)
+
+Version 0.6.57 (20211213)
+-------------
+o fix bugs in excluded_adduct in annotateInitialSeed
+
+Version 0.6.60 (20220115)
+-------------
+o add a parameter adduct_limit_specLib in MetDNA2 function to limit the adduct types in initial seed annotation
+o add a test_force_filtering_rt in annotateInitialSeed function to enforce filtering RT in final table
+o add a whether_use_predRT in annotateMRN related functions to ignore RT match
+
+Version 0.6.61 (20220117)
+-------------
+o major changed parameter: adduct_limit_specLib, test_force_filtering_rt, use_pretrained_model, remove_conflict_seed_from_final_table
+o add groupRT2 function to use recursive way to group RTs instead of region division in merge annotation record part (recursive annotation)
+o add trainRandomForestWithCaret function to update randomForest model with Caret
+o add removeReplicateSeedAnnotationFromFinalTable to remove replicated annotations between seed annotation and recursive annotations
+
+Version 0.6.62 (20220119)
+-------------
+o modify the order when keep record in redundancy removal (metAnnotation > isotopeAnnotaion > adductAnnotation)
+o modify the annotation report in generateExporTableIden (when keep the highest confidence level, the level3.1 and level3.2 have same priority)
+
+Version 0.6.63 (20220121)
+-------------
+o open mz_ppm_thr parameter in the MetDNA2 function
+
+Version 0.6.64 (20220122)
+-------------
+o add whether_link_frag parameter in the MetDNA2 function. This parameter controls whether perform annotation propagation with matched fragment number higher than the cutoff
