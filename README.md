@@ -30,4 +30,4 @@ Zhiwei Zhou†, Mingdu Luo†, Haosong Zhang, Yandong Yin, Yuping Cai, and Zheng
 
 ## License
 <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-nd/4.0/88x31.png" /></a> 
-Licensed under the Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)
+This work is licensed under the Creative Commons Attribution Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)
