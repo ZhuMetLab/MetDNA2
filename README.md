@@ -27,3 +27,6 @@ If you have any problems or bug reports, please contact us with the following ma
 This free open-source software implements academic research by the authors and co-workers. If you use it, please support the project by citing the appropriate journal articles.
 
 Zhiwei Zhou†, Mingdu Luo†, Haosong Zhang, Yandong Yin, Yuping Cai, and Zheng-Jiang Zhu*, Metabolite annotation from knowns to unknowns through knowledge-guided multi-layer metabolic network, **Submitted**, 2022
+
+## License
+Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)
