@@ -588,3 +588,66 @@ o open mz_ppm_thr parameter in the MetDNA2 function
 Version 0.6.64 (20220122)
 -------------
 o add whether_link_frag parameter in the MetDNA2 function. This parameter controls whether perform annotation propagation with matched fragment number higher than the cutoff
+
+Version 1.0.0 (20220215)
+-------------
+o modify default parameters for submitted manuscript: test_force_filtering_rt (NULL to 20), adduct_limit_specLib ('all' to c('[M+H]+', '[M+Na]+') or c('[M-H]-', '[M-2H]-')), whether_link_frag (FALSE to TRUE), matched_frag_cutoff (1 to 4), candidate_num (1 to 10), remove_conflict_seed_from_final_table (FALSE to TRUE)
+o open the parameter extended_step on web server
+o open global peak correlation network function on web server
+
+Version 1.0.01 (20220221)
+-------------
+o modify method_lc 'zhulabRP' to 'RP12min'
+o update rt_ref for RP12min
+
+Version 1.0.02 (20220224)
+-------------
+o update some typo in report
+
+Version 1.1.00 (20220226)
+-------------
+o use MetLib functions to replace loadDB
+o add skip credential and MRN sections
+
+Version 1.1.01 (20220302)
+-------------
+o add adduct_limit_specLib decision for local runing, and default use 'limited' (POS:  c('[M+H]+', '[M+Na]+'), NEG: c('[M-H]-', '[M-2H]-'))
+o adjust parameter mz_tol and mz_ppm_thr according to instrument. (Default: QTOF: 15ppm & 400; QE: 15ppm & 0)
+o fix some bugs
+o modify logic of analysis report generation (Only all function enabled)
+
+Version 1.1.11 (20220303)
+-------------
+o modify default tolerance_rt_range as 25s
+o remove test_force_filtering_rt parameter
+
+Version 1.1.12 (20220322)
+-------------
+o modify bugs: manually given adduct list 
+
+Version 1.1.13 (20220415)
+-------------
+o modify bugs: addRecursiveResult2MetDNA2AnnoClass: add structure information into recursive annotation (id_kegg redirection)
+o set adduct_limit_specLib default 'limited' (POS:  c('[M+H]+', '[M]+', '[M-H2O+H]+), NEG: c('[M-H]-', '[M-2H]-', '[M-H2O-H]-))
+
+Version 1.1.15 (20220421)
+-------------
+o fix bugs: mz_ppm_thr parameter was not passed in matchMs2WithNeighbor
+o change annotateAdductMRN as single thread
+
+Version 1.1.16 (20220421)
+-------------
+o recode the function to call annotateAdductMRN with multiple threads 
+
+Version 1.1.17 (20220423)
+-------------
+o modify bugs: addRecursiveResult2MetDNA2AnnoClass: id_kegg redirection
+
+Version 1.2 / 1.1.18 (20220427)
+-------------
+o modify bugs: addRecursiveResult2MetDNA2AnnoClass: id_kegg redirection from lib_kegg (181214)
+o cancel 1.1.13[1] and 1.1.17 modification
+
+Version 1.2.10 (20220506)
+-------------
+o fix bugs: ignore electron mass in adduct m/z calculation during recursive annotation 

@@ -17,7 +17,7 @@ annotateInitialSeed(
   column = c("hilic", "rp"),
   ce = c("30", "10", "20", "35,15", "40", "50", "NCE10", "NCE20", "NCE30", "NCE40",
     "NCE50", "SCE20_30_40\%", "SNCE20_30_40\%"),
-  method_lc = c("Amide12min", "Amide23min", "Other", "MetlinRP", "zhulabRP"),
+  method_lc = c("Amide12min", "Amide23min", "Other", "MetlinRP", "RP12min"),
   excluded_adduct = NULL,
   is_rt_calibration = FALSE,
   mz_tol = 25,
@@ -66,7 +66,7 @@ annotateInitialSeed(
 
 \item{ce}{"10", "20", "30", "35,15", "40", "50". Default: "30"}
 
-\item{method_lc}{'Amide12min', 'Amide23min', 'Other', 'MetlinRP'. Default: 'Amide12min'}
+\item{method_lc}{'Amide12min', 'Amide23min', 'Other', 'MetlinRP', 'RP12min'. Default: 'Amide12min'}
 
 \item{excluded_adduct}{adduct list for exclusion. Default: NULL}
 

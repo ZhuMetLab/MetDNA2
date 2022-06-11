@@ -11,7 +11,7 @@
 #' @param direction 'forward', 'reverse'. Default: 'reverse'
 #' @param Use seed from reserved match or forward match. 'forward', 'reverse'. Default: 'reverse'
 #' @param column 'hilic', 'rp'
-#' @param method_lc 'Amide12min', 'Amide23min', 'Other', 'MetlinRP'
+#' @param method_lc 'Amide12min', 'Amide23min', 'Other', 'MetlinRP', 'RP12min'
 #' @param excluded_adduct NULL
 #' @param polarity 'positive', 'negative'. Default: 'positive'
 #' @param extension_step The used extended MRN with n step reaction. Steps: '0', '1', '2', '3', '4', '5', '6', '7', '8'
@@ -119,9 +119,9 @@ setGeneric(name = 'annotateMRN',
              direction = c('reverse', 'forward'),
              instrument = c("SciexTripleTOF", "AgilentQTOF", "BrukerQTOF", "ThermoOrbitrap",
                             'ThermoExploris', "AgilentDTIMMS", "BrukerTIMS", 'WatersQTOF','WatersTWIMMS'),
-             lib = c('zhuMetLib', 'zhuMetLib_orbitrap', 'fiehnHilicLib', 'zhuRPLib'),
+             lib = c('zhumetlib_qtof', 'zhumetlib_orbitrap', 'fiehnHilicLib'),
              column = c("hilic", "rp"),
-             method_lc = c('Amide12min', 'Amide23min', 'Other', 'MetlinRP', 'zhulabRP'),
+             method_lc = c('Amide12min', 'Amide23min', 'Other', 'MetlinRP', 'RP12min'),
              excluded_adduct = NULL,
              polarity = c("positive", "negative"),
              extension_step = c('0', '1', '2', '3', '4', '5', '6', '7', '8'),
@@ -206,7 +206,7 @@ setGeneric(name = 'annotateMRN',
              #         }
              # )
 
-             if (lib == 'zhuMetLib') {
+             if (lib == 'zhumetlib_qtof') {
                data("zhuMetlib", envir = environment())
                inHouse_compound <- zhuMetlib$meta$compound %>% as.data.frame()
 
@@ -222,7 +222,7 @@ setGeneric(name = 'annotateMRN',
                md_inHouse_cpd <- md_fiehnHilicLib
              }
 
-             if (lib == 'zhuMetLib_orbitrap') {
+             if (lib == 'zhumetlib_orbitrap') {
                data("zhuMetlib_orbitrap", envir = environment())
                inHouse_compound <- zhuMetlib_orbitrap$meta$compound %>% as.data.frame()
 
@@ -230,13 +230,6 @@ setGeneric(name = 'annotateMRN',
                md_inHouse_cpd <- md_zhumetlib
              }
 
-             if (lib == 'zhuRPLib') {
-               data("zhuRPlib", envir = environment())
-               inHouse_compound <- zhuRPlib$meta$compound %>% as.data.frame()
-
-               data("md_zhuRPLib", envir = environment())
-               md_inHouse_cpd <- md_zhumetlib
-             }
 
              # if (test_old_mrn == 'v0.3') {
              #   data("md_mrn_emrn_v03", envir = environment())
@@ -293,7 +286,7 @@ setGeneric(name = 'annotateMRN',
              }
 
              rm(list = c('zhuMetlib', "fiehnHilicLib", 'zhuRPlib'));gc()
-             rm(list = c('md_mrn_emrn', 'md_zhumetlib', "md_fiehnHilicLib", 'md_zhuRPLib'));gc()
+             rm(list = c('md_mrn_emrn', 'md_zhumetlib', "md_fiehnHilicLib"));gc()
 
              cat("\n");cat("Construct RT prediction model.\n")
 
@@ -1234,7 +1227,7 @@ setGeneric(name = "predictRT",
                           md_kegg_cpd,
                           use_default_md = TRUE,
                           column = c("hilic", "rp"),
-                          method_lc = c('Amide12min', 'Amide23min', 'Other', 'MetlinRP', 'zhulabRP'),
+                          method_lc = c('Amide12min', 'Amide23min', 'Other', 'MetlinRP', 'RP12min'),
                           metdna_version = c('version2', 'version1'),
                           use_pretrained_model = FALSE
            ){
@@ -1620,7 +1613,7 @@ setGeneric(name = "annotateNeighbor",
                           metdna_version = c('version2', 'version1'),
                           instrument = c("SciexTripleTOF", "AgilentQTOF", "BrukerQTOF", "ThermoOrbitrap",
                                          'ThermoExploris', "AgilentDTIMMS", "BrukerTIMS", 'WatersQTOF','WatersTWIMMS'),
-                          method_lc = c('Amide12min', 'Amide23min', 'Other', 'MetlinRP'),
+                          method_lc = c('Amide12min', 'Amide23min', 'Other', 'MetlinRP', 'RP12min'),
                           direction = c('forward', 'reverse'),
                           scoring_approach = c('dp', 'bonanza', 'hybrid', 'gnps'),
                           mz_tol = 25,
@@ -1846,6 +1839,7 @@ setGeneric(name = "annotateNeighbor",
                    rt_tol1 = rt_tol1,
                    rt_tol2 = rt_tol2,
                    mz_tol = mz_tol,
+                   mz_ppm_thr = mz_ppm_thr,
                    cor_tol = cor_tol,
                    ccs_tol = ccs_tol,
                    int_tol = int_tol,
@@ -2520,6 +2514,7 @@ setGeneric(name = "matchMs2WithNeighbor",
                           adduct_table,
                           ...){
              polarity <- match.arg(polarity)
+             # browser()
              # path <- '/home/zhouzw/Data_processing/20210224_metdna2_update/'
              # scoring_approach <- match.arg(scoring_approach)
 
@@ -2625,122 +2620,28 @@ setGeneric(name = "matchMs2WithNeighbor",
                gc()
              }
 
+             # browser()
              # dir.create(file.path(path, 'test'), showWarnings = FALSE, recursive = TRUE)
              # save(tags2,
              #      file = file.path(path, 'test', 'temp_tags2_isotope_201110.RData'))
 
              # dir.create(file.path(path, 'test'), showWarnings = FALSE, recursive = TRUE)
              # save(tags2,
-             #      file = file.path(path, 'test', paste0('round', round, '_temp_tags2_isotope_210304.RData')),
+             #      file = file.path('D:/project/00_zhulab/01_metdna2/00_data/20220412_test_metdna2', 'test', paste0('round', round, '_temp_tags2_isotope_220420.RData')),
              #      version = 2)
 
              # adduct annotation -----------------------------------------------
              if (add_annotation) {
                cat("\n");cat("Adduct annotation.\n")
 
-               # for each seed, annotate its adducts
-
-               temp_fun <- function(index, # chunks from seed_idx
-                                    tags2, peak_mz, peak_rt,
-                                    polarity, rt_tol, mz_tol, mz_ppm_thr,
-                                    adduct_table,
-                                    annotation_idx,
-                                    round){
-                 annotation_idx <- 1:length(tags2)
-                 library(Rcpp, warn.conflicts = FALSE, quietly = TRUE)
-                 # suppressMessages(data(thermo, package = "CHNOSZ", envir = environment()))
-                 temp_tags2 <- tags2[index]
-                 rm(tags2)
-                 gc()
-                 pbapply::pboptions(type="timer", style = 1)
-                 # result <- pbapply::pblapply(temp_tags2, function(x){
-                 result <- lapply(seq_along(temp_tags2), function(i){
-                   seed <- temp_tags2[[i]]
-                   seed.as.seed.round <-
-                     showTags2(list(seed), slot = "as.seed")[[2]][[1]]
-                   seed.i <- which(seed.as.seed.round == round)
-                   peak_mz_all <- peak_mz[annotation_idx]
-                   peak_rt_all <- peak_rt[annotation_idx]
-                   peak_cor_all <- rep(1, length(annotation_idx))
-                   rm(list=c("peak_mz", "peak_rt"))
-                   gc()
-                   if(length(seed.i)==0){
-                     return(NULL)
-                   }else{
-                     temp_result <- lapply(seed.i,function(j){
-                       query_name <- seed@name
-                       query_id <- seed@annotation[[j]]$to
-                       query_charge <- seed@annotation[[j]]$charge
-                       query_level <- seed@annotation[[j]]$level
-                       query_formula <- stringr::str_trim(seed@annotation[[j]]$formula)
-                       query_adduct <- seed@annotation[[j]]$adduct
-                       query_mz <- seed@mz
-                       query_rt <- seed@rt
-
-                       adduct_result <-
-                         annotateAdductMRN(id = query_id,
-                                           formula = query_formula,
-                                           adduct = query_adduct,
-                                           polarity = polarity,
-                                           mz = query_mz,
-                                           rt = query_rt,
-                                           peak_mz_all = peak_mz_all,
-                                           peak_rt_all = peak_rt_all,
-                                           rt_tol = rt_tol,
-                                           mz_tol = mz_tol,
-                                           mz_ppm_thr = mz_ppm_thr,
-                                           adduct_table = adduct_table,
-                                           cor_tol = cor_tol)
-                       adduct_result
-                     })
-                     temp_result
-                   }
-                 })
-                 result
-               }
-
-
-               cl <- snow::makeCluster(threads, type = "SOCK")
-
-               snow::clusterExport(cl, list = list("showTags2",
-                                                   "annotateAdductMRN",
-                                                   "sumFormula",
-                                                   "checkElement",
-                                                   "splitFormula",
-                                                   "pasteElement"))
-               nc <- length(cl)
-               options(warn = -1)
-               if (length(seed_idx) < threads){
-                 threads <-  1
-               }
-
-               # split seed index into chunks according to threads
-               # ichunks pass to index
-               ichunks <- split(seed_idx, 1:threads)
-               # library(Rcpp)
-               adduct_result <-
-                 snow::clusterApply(cl = cl, ichunks,
-                                    fun = temp_fun,
-                                    tags2 = tags2,
-                                    peak_mz = peak_mz,
-                                    peak_rt = peak_rt,
-                                    polarity = polarity,
-                                    rt_tol = rt_tol1,
-                                    mz_tol = mz_tol,
-                                    mz_ppm_thr = mz_ppm_thr,
-                                    # cor_tol = cor_tol,
-                                    round = round,
-                                    adduct_table = adduct_table,
-                                    annotation_idx = annotation_idx)
-
-               snow::stopCluster(cl)
-
-
-               # # debugs ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-               # test <- lapply(seq_along(seed_idx), function(k){
-               #   cat(k, ' ')
-               #   index <- seed_idx[k]
-               #
+               # # for each seed, annotate its adducts
+               # 
+               # temp_fun <- function(index, # chunks from seed_idx
+               #                      tags2, peak_mz, peak_rt,
+               #                      polarity, mz_tol, rt_tol, mz_ppm_thr,
+               #                      adduct_table,
+               #                      annotation_idx,
+               #                      round){
                #   annotation_idx <- 1:length(tags2)
                #   library(Rcpp, warn.conflicts = FALSE, quietly = TRUE)
                #   # suppressMessages(data(thermo, package = "CHNOSZ", envir = environment()))
@@ -2771,7 +2672,7 @@ setGeneric(name = "matchMs2WithNeighbor",
                #         query_adduct <- seed@annotation[[j]]$adduct
                #         query_mz <- seed@mz
                #         query_rt <- seed@rt
-               #
+               # 
                #         adduct_result <-
                #           annotateAdductMRN(id = query_id,
                #                             formula = query_formula,
@@ -2781,8 +2682,9 @@ setGeneric(name = "matchMs2WithNeighbor",
                #                             rt = query_rt,
                #                             peak_mz_all = peak_mz_all,
                #                             peak_rt_all = peak_rt_all,
-               #                             rt_tol = 3,
+               #                             rt_tol = rt_tol,
                #                             mz_tol = mz_tol,
+               #                             mz_ppm_thr = mz_ppm_thr,
                #                             adduct_table = adduct_table,
                #                             cor_tol = cor_tol)
                #         adduct_result
@@ -2791,26 +2693,214 @@ setGeneric(name = "matchMs2WithNeighbor",
                #     }
                #   })
                #   result
-               # })
+               # }
+               # 
+               # 
+               # cl <- snow::makeCluster(threads, type = "SOCK")
+               # 
+               # snow::clusterExport(cl, list = list("showTags2",
+               #                                     "annotateAdductMRN",
+               #                                     "sumFormula",
+               #                                     "checkElement",
+               #                                     "splitFormula",
+               #                                     "pasteElement"))
+               # nc <- length(cl)
+               # options(warn = -1)
+               # if (length(seed_idx) < threads){
+               #   threads <-  1
+               # }
+               # 
+               # # split seed index into chunks according to threads
+               # # ichunks pass to index
+               # ichunks <- split(seed_idx, 1:threads)
+               # # library(Rcpp)
+               # adduct_result <-
+               #   snow::clusterApply(cl = cl, ichunks,
+               #                      fun = temp_fun,
+               #                      tags2 = tags2,
+               #                      peak_mz = peak_mz,
+               #                      peak_rt = peak_rt,
+               #                      polarity = polarity,
+               #                      rt_tol = rt_tol1,
+               #                      mz_tol = mz_tol,
+               #                      mz_ppm_thr = mz_ppm_thr,
+               #                      # cor_tol = cor_tol,
+               #                      round = round,
+               #                      adduct_table = adduct_table,
+               #                      annotation_idx = annotation_idx)
+               # 
+               # snow::stopCluster(cl)
+               # 
+               # browser()
+               # # combine adduct chunks to list
+               # adduct_result1 <- adduct_result[[1]]
+               # if(threads > 1){
+               #   for(i in 2:length(adduct_result)){
+               #     adduct_result1 <- c(adduct_result1, adduct_result[[i]])
+               #   }
+               # }
+               # adduct_result1 <- adduct_result1[order(unlist(ichunks))]
+               # rm(list = "adduct_result")
+               # gc()
 
-
-
-               # combine adduct chunks to list
-               adduct_result1 <- adduct_result[[1]]
-               if(threads > 1){
-                 for(i in 2:length(adduct_result)){
-                   adduct_result1 <- c(adduct_result1, adduct_result[[i]])
-                 }
+               tempFunAdduct <- function(k){
+                 index <- seed_idx[k]
+                 
+                 annotation_idx <- 1:length(tags2)
+                 # library(Rcpp, warn.conflicts = FALSE, quietly = TRUE)
+                 # suppressMessages(data(thermo, package = "CHNOSZ", envir = environment()))
+                 temp_tags2 <- tags2[index]
+                 rm(tags2)
+                 gc()
+                 # pbapply::pboptions(type="timer", style = 1)
+                 # result <- pbapply::pblapply(temp_tags2, function(x){
+                 result <- lapply(seq_along(temp_tags2), function(i){
+                   seed <- temp_tags2[[i]]
+                   seed.as.seed.round <-
+                     showTags2(list(seed), slot = "as.seed")[[2]][[1]]
+                   seed.i <- which(seed.as.seed.round == round)
+                   peak_mz_all <- peak_mz[annotation_idx]
+                   peak_rt_all <- peak_rt[annotation_idx]
+                   peak_cor_all <- rep(1, length(annotation_idx))
+                   rm(list=c("peak_mz", "peak_rt"))
+                   gc()
+                   if(length(seed.i)==0){
+                     return(NULL)
+                   }else{
+                     temp_result <- lapply(seed.i,function(j){
+                       query_name <- seed@name
+                       query_id <- seed@annotation[[j]]$to
+                       query_charge <- seed@annotation[[j]]$charge
+                       query_level <- seed@annotation[[j]]$level
+                       query_formula <- stringr::str_trim(seed@annotation[[j]]$formula)
+                       query_adduct <- seed@annotation[[j]]$adduct
+                       query_mz <- seed@mz
+                       query_rt <- seed@rt
+                       
+                       adduct_result <-
+                         annotateAdductMRN(id = query_id,
+                           formula = query_formula,
+                           adduct = query_adduct,
+                           polarity = polarity,
+                           mz = query_mz,
+                           rt = query_rt,
+                           peak_mz_all = peak_mz_all,
+                           peak_rt_all = peak_rt_all,
+                           rt_tol = rt_tol1,
+                           mz_tol = mz_tol,
+                           mz_ppm_thr = mz_ppm_thr,
+                           adduct_table = adduct_table,
+                           cor_tol = cor_tol)
+                       adduct_result
+                     })
+                     temp_result
+                   }
+                 })
+                 result
+                 
                }
-
-               adduct_result1 <- adduct_result1[order(unlist(ichunks))]
+               
+               
+               library(parallel)
+               # cl <- makeCluster(3L)
+               cl <- parallel::makeCluster(threads)
+               parallel::clusterExport(cl, c('tempFunAdduct',
+                 "checkElement",
+                 "annotateAdductMRN",
+                 "showTags2",
+                 "seed_idx",
+                 "tags2",
+                 "peak_mz",
+                 "peak_rt",
+                 "polarity",
+                 "rt_tol1",
+                 'mz_tol',
+                 'mz_ppm_thr',
+                 'cor_tol',
+                 'round',
+                 'adduct_table',
+                 'annotation_idx'),
+                 envir = environment())
+               
+               system.time(
+                 adduct_result <- parallel::parLapply(cl = cl,
+                   seq_along(seed_idx),
+                   function(k) {tempFunAdduct(k)}
+                 )
+               )
+               stopCluster(cl)
+               
+               adduct_result1 <- lapply(adduct_result, function(x){
+                 x[[1]]
+               })
                rm(list = "adduct_result")
                gc()
 
 
-               # add adduct_result to tags2, specific to round
-               # anno_idx <- showTags2(tags2[seed_idx], slot = "as.seed")[[2]]
-               # anno_idx <- lapply(anno_idx, function(x) which(x == round))
+               # # debugs ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+               # adduct_result <- pbapply::pblapply(seq_along(seed_idx), function(k){
+               #   cat(k, ' ')
+               #   index <- seed_idx[k]
+               # 
+               #   annotation_idx <- 1:length(tags2)
+               #   # library(Rcpp, warn.conflicts = FALSE, quietly = TRUE)
+               #   # suppressMessages(data(thermo, package = "CHNOSZ", envir = environment()))
+               #   temp_tags2 <- tags2[index]
+               #   rm(tags2)
+               #   gc()
+               #   pbapply::pboptions(type="timer", style = 1)
+               #   # result <- pbapply::pblapply(temp_tags2, function(x){
+               #   result <- lapply(seq_along(temp_tags2), function(i){
+               #     seed <- temp_tags2[[i]]
+               #     seed.as.seed.round <-
+               #       showTags2(list(seed), slot = "as.seed")[[2]][[1]]
+               #     seed.i <- which(seed.as.seed.round == round)
+               #     peak_mz_all <- peak_mz[annotation_idx]
+               #     peak_rt_all <- peak_rt[annotation_idx]
+               #     peak_cor_all <- rep(1, length(annotation_idx))
+               #     rm(list=c("peak_mz", "peak_rt"))
+               #     gc()
+               #     if(length(seed.i)==0){
+               #       return(NULL)
+               #     }else{
+               #       temp_result <- lapply(seed.i,function(j){
+               #         query_name <- seed@name
+               #         query_id <- seed@annotation[[j]]$to
+               #         query_charge <- seed@annotation[[j]]$charge
+               #         query_level <- seed@annotation[[j]]$level
+               #         query_formula <- stringr::str_trim(seed@annotation[[j]]$formula)
+               #         query_adduct <- seed@annotation[[j]]$adduct
+               #         query_mz <- seed@mz
+               #         query_rt <- seed@rt
+               #         
+               #         adduct_result <-
+               #           annotateAdductMRN(id = query_id,
+               #             formula = query_formula,
+               #             adduct = query_adduct,
+               #             polarity = polarity,
+               #             mz = query_mz,
+               #             rt = query_rt,
+               #             peak_mz_all = peak_mz_all,
+               #             peak_rt_all = peak_rt_all,
+               #             rt_tol = rt_tol1,
+               #             mz_tol = mz_tol,
+               #             mz_ppm_thr = mz_ppm_thr,
+               #             adduct_table = adduct_table,
+               #             cor_tol = cor_tol)
+               #         adduct_result
+               #       })
+               #       temp_result
+               #     }
+               #   })
+               #   result
+               # })
+               # 
+               # 
+               # adduct_result1 <- lapply(adduct_result, function(x){
+               #   x[[1]]
+               # })
+               # rm(list = "adduct_result")
+               # gc()
 
                for (j in 1:length(seed_idx)) {
                  # cat(j, ' ')
@@ -2983,21 +3073,21 @@ setGeneric(name = "matchMs2WithNeighbor",
 
 
 
-               # # debug 20210317
+               # # debug 20220421
                # metabolite_result <- lapply(seq_along(seed_idx), function(k){
                #   # k <- 82
                #   cat(k, ' ')
                #   index <- seed_idx[k]
                #   annotation_idx <- 1:length(tags2)
-               #
+               # 
                #   library(Rcpp, quietly = TRUE,
-               #           logical.return = FALSE, warn.conflicts = FALSE)
-               #
+               #     logical.return = FALSE, warn.conflicts = FALSE)
+               # 
                #   library(dplyr, quietly = TRUE,
-               #           logical.return = FALSE, warn.conflicts = FALSE)
-               #
+               #     logical.return = FALSE, warn.conflicts = FALSE)
+               # 
                #   library(SpectraTools, quietly = TRUE,
-               #           logical.return = FALSE, warn.conflicts = FALSE)
+               #     logical.return = FALSE, warn.conflicts = FALSE)
                #   # suppressMessages(data(thermo, package = "CHNOSZ", envir = environment()))
                #   temp_tags2 <- tags2[index]
                #   # rm(tags2)
@@ -3011,7 +3101,7 @@ setGeneric(name = "matchMs2WithNeighbor",
                #     peak_rt_all <- peak_rt[annotation_idx]
                #     peak_ccs_all <- peak_ccs[annotation_idx]
                #     # peak_cor_all <- rep(1, length(annotation_idx))
-               #     rm(list=c("peak_mz", "peak_rt", 'peak_ccs'))
+               #     rm(list=c("peak_mz", "peak_rt"))
                #     gc()
                #     if (length(seed.i) == 0) {
                #       return(NULL)
@@ -3032,28 +3122,32 @@ setGeneric(name = "matchMs2WithNeighbor",
                #           # cat(reaction_step, ' ')
                #           metabolite_result <-
                #             annotateMetaboliteMRN(metabolite_name = query_name,
-               #                                   metabolite_id = query_id,
-               #                                   formula = query_formula,
-               #                                   adduct = query_adduct,
-               #                                   scoring_approach = scoring_approach,
-               #                                   instrument = instrument,
-               #                                   mz = query_mz,
-               #                                   rt = query_rt,
-               #                                   peak_mz_all = peak_mz_all,
-               #                                   peak_rt_all = peak_rt_all,
-               #                                   peak_ccs_all = peak_ccs_all,
-               #                                   ms2 = ms2,
-               #                                   mz_tol = mz_tol,
-               #                                   rt_tol = rt_tol2,
-               #                                   ccs_tol = ccs_tol,
-               #                                   dp_tol = dp_tol,
-               #                                   matched_frag_tol = matched_frag_tol,
-               #                                   step = reaction_step,
-               #                                   metabolite = metabolite,
-               #                                   metabolite_ccs = metabolite_ccs,
-               #                                   metabolic_network = metabolic_network,
-               #                                   adduct_table = adduct_table)
-               #
+               #               metabolite_id = query_id,
+               #               formula = query_formula,
+               #               adduct = query_adduct,
+               #               scoring_approach = scoring_approach,
+               #               instrument = instrument,
+               #               mz = query_mz,
+               #               rt = query_rt,
+               #               peak_mz_all = peak_mz_all,
+               #               peak_rt_all = peak_rt_all,
+               #               peak_ccs_all = peak_ccs_all,
+               #               ms2 = ms2,
+               #               mz_tol = mz_tol,
+               #               mz_ppm_thr = mz_ppm_thr,
+               #               rt_tol = rt_tol2,
+               #               ccs_tol = ccs_tol,
+               #               dp_tol = dp_tol,
+               #               matched_frag_tol = matched_frag_tol,
+               #               whether_link_frag = whether_link_frag,
+               #               step = reaction_step,
+               #               mz_tol_ms2 = mz_tol_ms2,
+               #               metabolite = metabolite,
+               #               metabolite_ccs = metabolite_ccs,
+               #               metabolic_network = metabolic_network,
+               #               adduct_table = adduct_table,
+               #               whether_use_predRT = whether_use_predRT)
+               # 
                #           reaction_step <- reaction_step + 1
                #         }
                #         metabolite_result
@@ -3062,7 +3156,7 @@ setGeneric(name = "matchMs2WithNeighbor",
                #     }
                #   })
                #   result
-               #
+               # 
                # })
 
                metabolite_result1 <- lapply(metabolite_result, function(x){x[[1]]})
@@ -3632,6 +3726,13 @@ setGeneric(name = "annotateAdductMRN",
              # get the accurate mass for different adduct format
              accurate_mass <- sapply(formula1, function(x) {Rdisop::getMolecule(x)$exactmass})
              accurate_mz <- accurate_mass/charge
+             
+             # process with electron mass in mz calculation
+             if (polarity == 'positive') {
+               accurate_mz <- accurate_mz - 0.0005
+             } else {
+               accurate_mz <- accurate_mz + 0.0005
+             }
 
              # adduct_info is the adduct table of adduct
              adduct_info <- data.frame(accurate_mz, rt, charge,
@@ -4322,7 +4423,7 @@ setGeneric(name = "annotateMetaboliteMRN",
 
              # merge spectra match result
              neighbor_result <- neighbor_result %>%
-               dplyr::mutate(mz_error = abs(peak_mz - mz)*10^6/ifelse(mz >= 400, mz, 400),
+               dplyr::mutate(mz_error = abs(peak_mz - mz)*10^6/ifelse(mz >= mz_ppm_thr, mz, mz_ppm_thr),
                              rt_error = abs(peak_rt - rt)*100/rt,
                              ccs_error = abs(peak_ccs - ccs)*100/ccs,
                              ms2_score = ms2_result_score,

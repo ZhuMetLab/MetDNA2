@@ -9,7 +9,7 @@ loadSpecDB(
   instrument = c("SciexTripleTOF", "AgilentQTOF", "BrukerQTOF", "ThermoOrbitrap",
     "ThermoExploris", "WatersQTOF", "WatersTWIMMS", "AgilentDTIMMS", "BrukerTIMS"),
   column = c("hilic", "rp"),
-  method_lc = c("Amide12min", "Amide23min", "MetlinRP", "Other", "zhulabRP"),
+  method_lc = c("Amide12min", "Amide23min", "MetlinRP", "Other", "RP12min"),
   ce = c("30", "10", "20", "35,15", "40", "50", "NCE10", "NCE20", "NCE30", "NCE40",
     "NCE50", "SCE20_30_40\%", "SNCE20_30_40\%"),
   polarity = c("positive", "negative"),

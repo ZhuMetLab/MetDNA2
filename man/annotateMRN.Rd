@@ -17,7 +17,7 @@ annotateMRN(
     "ThermoExploris", "AgilentDTIMMS", "BrukerTIMS", "WatersQTOF", "WatersTWIMMS"),
   lib = c("zhuMetLib", "zhuMetLib_orbitrap", "fiehnHilicLib", "zhuRPLib"),
   column = c("hilic", "rp"),
-  method_lc = c("Amide12min", "Amide23min", "Other", "MetlinRP", "zhulabRP"),
+  method_lc = c("Amide12min", "Amide23min", "Other", "MetlinRP", "RP12min"),
   excluded_adduct = NULL,
   polarity = c("positive", "negative"),
   extension_step = c("0", "1", "2", "3", "4", "5", "6", "7", "8"),
@@ -61,7 +61,7 @@ annotateMRN(
 
 \item{column}{'hilic', 'rp'}
 
-\item{method_lc}{'Amide12min', 'Amide23min', 'Other', 'MetlinRP'}
+\item{method_lc}{'Amide12min', 'Amide23min', 'Other', 'MetlinRP', 'RP12min'}
 
 \item{excluded_adduct}{NULL}
 

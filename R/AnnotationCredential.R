@@ -1260,18 +1260,42 @@ setGeneric(name = 'prepareMetDNA2',
                file.remove(file.path(path_output, 'ms2_data.msp'))
              }
 
-             progress <- mapProgress(n = length(tags2_after_redundancy_remove))
-             purrr::walk(seq_along(tags2_after_redundancy_remove), function(i){
+             # progress <- mapProgress(n = length(tags2_after_redundancy_remove))
+             # purrr::walk(seq_along(tags2_after_redundancy_remove), function(i){
+             #   mapProgressPrint(progress = progress)
+             #   temp_data <- tags2_after_redundancy_remove[[i]]
+             # 
+             #   if (nrow(temp_data@ms2) > 0) {
+             #     temp_name <- temp_data@name
+             #     temp_mz <- temp_data@mz
+             #     temp_rt <- temp_data@rt
+             # 
+             #     temp_spec <- temp_data@ms2
+             # 
+             #     generateMSP(file_name = file.path(path_output, 'ms2_data.msp'),
+             #                 cmp_name = temp_name,
+             #                 precusormz = temp_mz,
+             #                 rt = temp_rt,
+             #                 polarity = polarity,
+             #                 spec = temp_spec)
+             #   }
+             # 
+             # })
+             
+             load(file.path(path_dir, '01_result_initial_seed_annotation/00_intermediate_data/ms2'))
+             ms2_data_initial = ms2
+             progress <- mapProgress(n = length(ms2_data_initial))
+             purrr::walk(seq_along(ms2_data_initial), function(i){
                mapProgressPrint(progress = progress)
-               temp_data <- tags2_after_redundancy_remove[[i]]
-
-               if (nrow(temp_data@ms2) > 0) {
-                 temp_name <- temp_data@name
-                 temp_mz <- temp_data@mz
-                 temp_rt <- temp_data@rt
-
-                 temp_spec <- temp_data@ms2
-
+               temp_data <- ms2_data_initial[[i]]
+               
+               if (nrow(temp_data$spec) > 0) {
+                 temp_name <- temp_data$info[1] %>% as.character()
+                 temp_mz <- temp_data$info[2] %>% as.numeric()
+                 temp_rt <- temp_data$info[3] %>% as.numeric()
+                 
+                 temp_spec <- temp_data$spec
+                 
                  generateMSP(file_name = file.path(path_output, 'ms2_data.msp'),
                              cmp_name = temp_name,
                              precusormz = temp_mz,
@@ -1279,7 +1303,7 @@ setGeneric(name = 'prepareMetDNA2',
                              polarity = polarity,
                              spec = temp_spec)
                }
-
+               
              })
 
 

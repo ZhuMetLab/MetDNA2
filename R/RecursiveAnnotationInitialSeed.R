@@ -14,7 +14,7 @@
 #' @param lib Default: 'zhuMetLib'
 #' @param column "hilic", "rp"
 #' @param ce "10", "20", "30", "35,15", "40", "50". Default: "30"
-#' @param method_lc 'Amide12min', 'Amide23min', 'Other', 'MetlinRP'. Default: 'Amide12min'
+#' @param method_lc 'Amide12min', 'Amide23min', 'Other', 'MetlinRP', 'RP12min'. Default: 'Amide12min'
 #' @param excluded_adduct adduct list for exclusion. Default: NULL
 #' @param is_rt_calibration Default: FALSE
 #' @param mz_tol ms1 match. Default: 25 ppm
@@ -145,12 +145,12 @@ setGeneric(name = "annotateInitialSeed",
                           polarity = c("positive", "negative"),
                           instrument = c("SciexTripleTOF", "AgilentQTOF", "BrukerQTOF", "ThermoOrbitrap", "ThermoExploris",
                                          'WatersQTOF', 'WatersTWIMMS', "AgilentDTIMMS", "BrukerTIMS"),
-                          lib = c('zhuMetLib', 'zhuMetLib_orbitrap', 'fiehnHilicLib', 'zhuRPLib'),
+                          lib = c('zhumetlib_qtof', 'zhumetlib_orbitrap', 'fiehnHilicLib'),
                           column = c("hilic", "rp"),
                           ce = c("30", "10", "20", "35,15", "40", "50",
                                  'NCE10', 'NCE20', 'NCE30', 'NCE40', 'NCE50',
                                  'SCE20_30_40%', "SNCE20_30_40%"),
-                          method_lc = c('Amide12min', 'Amide23min', 'Other', 'MetlinRP', 'zhulabRP'),
+                          method_lc = c('Amide12min', 'Amide23min', 'Other', 'MetlinRP', 'RP12min'),
                           excluded_adduct = NULL,
                           is_rt_calibration = FALSE,
 
@@ -315,15 +315,25 @@ setGeneric(name = "annotateInitialSeed",
                      }
              )
 
-             lib_db <- loadSpecDB(lib = lib,
-                                  instrument = instrument,
-                                  column = column,
-                                  method_lc = method_lc,
-                                  ce = ce,
-                                  polarity = polarity,
-                                  adduct_list = adduct_list,
-                                  is_rt_calibration = is_rt_calibration,
-                                  path = path)
+             require(MetLib)
+             lib_db <- MetLib::loadLibData(lib = lib,
+                                           instrument = instrument,
+                                           column = column,
+                                           method_lc = method_lc,
+                                           ce = ce,
+                                           polarity = polarity,
+                                           adduct_list = adduct_list,
+                                           is_rt_calibration = is_rt_calibration,
+                                           path = path)
+             # lib_db <- loadSpecDB(lib = lib,
+             #                      instrument = instrument,
+             #                      column = column,
+             #                      method_lc = method_lc,
+             #                      ce = ce,
+             #                      polarity = polarity,
+             #                      adduct_list = adduct_list,
+             #                      is_rt_calibration = is_rt_calibration,
+             #                      path = path)
 
              lib_meta <- lib_db$lib_meta
              lib_spec <- lib_db$lib_spec
@@ -793,7 +803,7 @@ setGeneric('featureReName',
 
 #' @title loadSpecDB
 #' @author Zhiwei Zhou
-#' @param lib database name, 'zhuMetLib', 'zhuMetLib_orbitrap', 'fiehnHilicLib'. Default: 'zhuMetLib'
+#' @param lib database name, 'zhuMetLib', 'zhumetlib_orbitrap', 'fiehnHilicLib'. Default: 'zhuMetLib'
 #' @param instrument "SciexTripleTOF", "AgilentQTOF", "BrukerQTOF", "ThermoOrbitrap", "ThermoExploris", "AgilentDTIMMS", "BrukerTIMS". Default: "SciexTripleTOF"
 #' @param column 'hilic', 'rp'. Default: 'hilic'
 #' @param method_lc 'Amide12min', Amide23min', 'Other', 'MetlinRP'
@@ -849,11 +859,11 @@ setGeneric('featureReName',
 
 setGeneric(name = 'loadSpecDB',
            def = function(
-             lib = c('zhuMetLib', 'zhuMetLib_orbitrap', 'fiehnHilicLib', 'zhuRPLib'),
+             lib = c('zhumetlib_qtof', 'zhumetlib_orbitrap', 'fiehnHilicLib'),
              instrument = c("SciexTripleTOF", "AgilentQTOF", "BrukerQTOF", "ThermoOrbitrap", "ThermoExploris",
                             'WatersQTOF','WatersTWIMMS', "AgilentDTIMMS", "BrukerTIMS"),
              column = c('hilic', 'rp'),
-             method_lc = c('Amide12min', 'Amide23min', 'MetlinRP', 'Other', 'zhulabRP'),
+             method_lc = c('Amide12min', 'Amide23min', 'MetlinRP', 'Other', 'RP12min'),
              ce = c("30", "10", "20", "35,15", "40", "50",
                     'NCE10', 'NCE20', 'NCE30', 'NCE40', 'NCE50',
                     'SCE20_30_40%', "SNCE20_30_40%"),
@@ -932,17 +942,13 @@ setGeneric(name = 'loadSpecDB',
                       # }
 
                       switch (lib,
-                              'zhuMetLib_orbitrap' = {
+                              'zhumetlib_orbitrap' = {
                                 data('zhuMetlib_orbitrap', envir = environment())
                                 lib_data <- zhuMetlib_orbitrap
                               },
                               'fiehnHilicLib' = {
                                 data('fiehnHilicLib', envir = environment())
                                 lib_data <- fiehnHilicLib
-                              },
-                              'zhuRPLib' = {
-                                data('zhuRPlib', envir = environment())
-                                lib_data <- zhuRPlib
                               }
                       )
                     },
@@ -950,17 +956,13 @@ setGeneric(name = 'loadSpecDB',
                       # data('zhuMetlib_orbitrap', envir = environment())
                       # lib_data <- zhuMetlib_orbitrap
                       switch (lib,
-                              'zhuMetLib_orbitrap' = {
+                              'zhumetlib_orbitrap' = {
                                 data('zhuMetlib_orbitrap', envir = environment())
                                 lib_data <- zhuMetlib_orbitrap
                               },
                               'fiehnHilicLib' = {
                                 data('fiehnHilicLib', envir = environment())
                                 lib_data <- fiehnHilicLib
-                              },
-                              'zhuRPLib' = {
-                                data('zhuRPlib', envir = environment())
-                                lib_data <- zhuRPlib
                               }
                       )
                     },
@@ -985,7 +987,7 @@ setGeneric(name = 'loadSpecDB',
              # lib_meta <- zhuMetlib[['meta']][[temp_polarity]][[ce]]
              # lib_spec <- zhuMetlib[['compound']][[temp_polarity]]
 
-             if (lib %in% c('zhuMetLib_orbitrap', 'zhuRPLib')) {
+             if (lib %in% c('zhumetlib_orbitrap')) {
                if (ce %in% c("30", "10", "20", "40", "50")) {
                  ce <- paste('CE', ce, sep = '')
                }
@@ -1053,7 +1055,7 @@ setGeneric(name = 'loadSpecDB',
                       lib_rt_exp <- lib_rt[[1]] %>%
                         dplyr::filter(method == method_lc)
                     },
-                    'zhulabRP' = {
+                    'RP12min' = {
                       lib_rt_exp <- lib_rt[[3]]
                     })
 
@@ -1071,7 +1073,7 @@ setGeneric(name = 'loadSpecDB',
                lib_rt_exp <- temp_result$lib_rt
              }
 
-             if (method_lc == 'zhulabRP') {
+             if (method_lc == 'RP12min') {
                temp_rt <- match(lib_meta$id, lib_rt_exp$id) %>%
                  lib_rt_exp$rt[.] %>%
                  round(., digits = 2)
@@ -1156,9 +1158,10 @@ setGeneric(name = 'calibrateRT',
                           lib_rt,
                           is_rt_calibration = TRUE,
                           is_plot = TRUE,
-                          method_lc = c('Amide12min', 'Amide23min', 'MetlinRP', 'zhulabRP'),
+                          method_lc = c('Amide12min', 'Amide23min', 'MetlinRP', 'RP12min'),
                           column = 'hilic',
                           path = '.'){
+             # browser()
 
              # Load in house RT library according to LC method
              switch(method_lc,
@@ -1180,7 +1183,7 @@ setGeneric(name = 'calibrateRT',
                       lc_start <- 0
                       lc_end <- 1500},
 
-                    'zhulabRP' = {
+                    'RP12min' = {
                       data('rt_ref', envir = environment())
                       ref_rtqc_table <- rt_ref[[4]]
                       lc_start <- 0
@@ -1341,12 +1344,15 @@ setGeneric(name = 'matchMs1WithSpecLib',
              if (is_filter) {
                if (is_rt_score) {
                  # cat("rt match\n")
-                 exp_rt_range <- getRtRange(data = ms1_info$rt,
-                                            abs_rt_dev = tolerance_rt_range,
-                                            rel_rt_dev = 6,
-                                            rt_threshold = 500,
-                                            is_combined = TRUE)
+                 # exp_rt_range <- getRtRange(data = ms1_info$rt,
+                 #                            abs_rt_dev = tolerance_rt_range,
+                 #                            rel_rt_dev = 6,
+                 #                            rt_threshold = 500,
+                 #                            is_combined = TRUE)
 
+                 exp_rt_range <- getRtRange(data = ms1_info$rt,
+                                            abs_rt_dev = tolerance_rt_range)
+                 
                  temp_idx <- lapply(seq_along(result_annotation), function(i){
                    temp_idx <- which(lib_meta$rt >= exp_rt_range[i,1] & lib_meta$rt <= exp_rt_range[i,2])
                    # include no experimental RT candidates

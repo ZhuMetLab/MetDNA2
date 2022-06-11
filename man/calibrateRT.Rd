@@ -9,7 +9,7 @@ calibrateRT(
   lib_rt,
   is_rt_calibration = TRUE,
   is_plot = TRUE,
-  method_lc = c("Amide12min", "Amide23min", "MetlinRP", "zhulabRP"),
+  method_lc = c("Amide12min", "Amide23min", "MetlinRP", "RP12min"),
   column = "hilic",
   path = "."
 )

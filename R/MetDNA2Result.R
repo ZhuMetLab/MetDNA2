@@ -61,6 +61,9 @@ setGeneric(name = 'generateMetDNA2AnnotationResult',
                             'ThermoExploris', "AgilentDTIMMS", "BrukerTIMS", 'WatersQTOF','WatersTWIMMS'),
              remove_conflict_seed_from_final_table = FALSE,
              test_rm_extra_anno_from_ini_seed = FALSE,
+             # for skip functions
+             is_anno_mrn = TRUE,
+             is_credential = TRUE,
              ...
            ){
              path_output <- file.path(path, '00_annotation_table')
@@ -130,9 +133,12 @@ setGeneric(name = 'generateMetDNA2AnnotationResult',
                                  path = path,
                                  instrument = instrument,
                                  is_cred_formula_filter = is_cred_formula_filter,
+                                 # for skip functions
+                                 is_anno_mrn = is_anno_mrn,
+                                 is_credential = is_credential,
                                  ...)
 
-             if (remove_conflict_seed_from_final_table) {
+             if (remove_conflict_seed_from_final_table & is_anno_mrn & is_credential) {
                removeReplicateSeedAnnotationFromFinalTable(dir_path = path,
                                                            instrument = instrument)
              }
@@ -680,7 +686,7 @@ setGeneric(name = 'modifyOutputResult',
 #' @author Zhiwei Zhou
 #' @param annot_all
 #' @param path '.'
-#' @param lib  c('zhuMetLib', 'zhuMetLib_orbitrap', 'fiehnHilicLib')
+#' @param lib  c('zhuMetLib', 'zhumetlib_orbitrap', 'fiehnHilicLib')
 #' @param direction 'reverse', 'forward'
 #' @param instrument c("SciexTripleTOF", "AgilentQTOF", "BrukerQTOF", "ThermoOrbitrap", 'ThermoExploris', "AgilentDTIMMS", "BrukerTIMS", 'WatersQTOF','WatersTWIMMS')
 #' @param tolerance_rt_range 30
@@ -706,96 +712,101 @@ setGeneric(name = 'generateExportTable',
            function(annot_all,
                     path = '.',
                     direction = c('reverse', 'forward'),
-                    lib =  c('zhuMetLib', 'zhuMetLib_orbitrap', 'fiehnHilicLib', 'zhuRPLib'),
+                    lib =  c('zhumetlib_qtof', 'zhumetlib_orbitrap', 'fiehnHilicLib'),
                     instrument = c("SciexTripleTOF", "AgilentQTOF", "BrukerQTOF", "ThermoOrbitrap",
                                    'ThermoExploris', "AgilentDTIMMS", "BrukerTIMS", 'WatersQTOF','WatersTWIMMS'),
                     tolerance_rt_range = 30,
                     is_cred_formula_filter = FALSE,
                     candidate_num = 10,
                     test_evaluation = c('No', '200STD', '46STD'),
+                    # for skip functions
+                    is_anno_mrn = TRUE,
+                    is_credential = TRUE,
                     ...){
 
              # browser()
              path_output <- file.path(path, '00_annotation_table')
              load(file.path(path, '01_result_initial_seed_annotation/00_intermediate_data', 'ms1_data'))
 
-             # extract credentialed peak group ---------------------------------
-             list_credential_pg <- lapply(annot_all, function(x){
-               x@credential_annotation$peak_group
-             })
-
-             peak_group_id_table <- list_credential_pg %>%
-               dplyr::bind_rows() %>%
-               dplyr::select(peak_group_id, included_peak_group) %>%
-               dplyr::distinct(peak_group_id, .keep_all = TRUE)
-
-             base_num <- peak_group_id_table$peak_group_id %>% stringr::str_extract(pattern = '\\d+') %>% as.numeric()
-             base_peak <- peak_group_id_table$included_peak_group %>% stringr::str_split(pattern = '_\\[|_M', simplify = TRUE) %>% .[,1]
-             # base_adduct <- peak_group_id_table$included_peak_group %>% stringr::str_extract(pattern = '\\[\\d*M.+|M\\+|M\\-')
-             base_adduct <- peak_group_id_table$included_peak_group %>% stringr::str_extract(pattern = '(\\[\\d*M.+)')
-
-             peak_all <- lapply(annot_all, function(x){
-               x@peak_info %>% tibble::as_tibble()
-             }) %>% dplyr::bind_rows()
-             base_mz <- match(base_peak, peak_all$name) %>% peak_all$mz[.]
-             base_neutral_mass <- mapply(function(x, y){
-               convertMz2Adduct(base_mz = x, base_adduct = y, adduct_list = y)$exact_mass
-             },
-             x = base_mz,
-             y = base_adduct)
-             # convertMz2Adduct(base_mz = 220.1176, base_adduct = '[M+H]+', adduct_list = '[M-H]-')$exact_mass
-             # convertMz2Adduct(base_mz = base_mz[4], base_adduct = base_adduct[4], adduct_list = base_adduct[4])$exact_mass
-             # convertMz2Adduct(base_mz = 664.1144, base_adduct = '[M]+', adduct_list = '[M]+')$exact_mass
-
-             peak_group_id_table <- peak_group_id_table %>%
-               dplyr::mutate(base_peak = base_peak,
-                             base_adduct = base_adduct,
-                             base_num = base_num,
-                             base_mz = base_mz,
-                             base_neutral_mass = base_neutral_mass) %>%
-               dplyr::arrange(base_num)
-
-             dir.create(file.path(path_output, '00_intermediate_data'), showWarnings = FALSE, recursive = TRUE)
-             save(peak_group_id_table, file = file.path(path_output, '00_intermediate_data', 'peak_group_id_table'), version = 2)
-
-
-
-             cat('Export peak group table ...\n')
-             list_peak_group <- generateExportTablePeakGroup(annot_all = annot_all, peak_group_id_table = peak_group_id_table)
-
-             dir.create(file.path(path_output, '00_intermediate_data'), showWarnings = FALSE, recursive = TRUE)
-             save(list_peak_group, file = file.path(path_output, '00_intermediate_data', 'list_peak_group'), version = 2)
-
-             table_peak_group <- list_peak_group %>%
-               dplyr::bind_rows() %>%
-               dplyr::select(peak_name:ccs, isotope, adduct, peak_group_id, base_peak, rela_peaks) %>%
-               dplyr::mutate(pg_num = as.numeric(stringr::str_extract(peak_group_id, pattern = '\\d+'))) %>%
-               dplyr::arrange(pg_num) %>%
-               dplyr::distinct(peak_name, peak_group_id, .keep_all = TRUE) %>%
-               dplyr::select(-pg_num) %>%
-               dplyr::select(peak_group_id, dplyr::everything()) %>%
-               dplyr::mutate(mz = round(mz, 4),
-                             rt = round(rt, 1)) %>%
-               tidyr::replace_na(list('adduct' = ''))
-
-             # replace base_peak and neutral mass
-             table_peak_group$base_peak <- match(table_peak_group$peak_group_id, peak_group_id_table$peak_group_id) %>%
-               peak_group_id_table$base_peak[.]
-             table_peak_group$neutral_mass <- match(table_peak_group$peak_group_id, peak_group_id_table$peak_group_id) %>%
-               peak_group_id_table$base_neutral_mass[.]
-             table_peak_group <- table_peak_group %>%
-               dplyr::select(peak_group_id:base_peak, neutral_mass, dplyr::everything()) %>%
-               dplyr::mutate(neutral_mass = round(neutral_mass, 4)) %>%
-               dplyr::rename(num_peaks = rela_peaks)
-
-             if (!(instrument %in% c("AgilentDTIMMS", "BrukerTIMS", "WatersTWIMMS"))) {
+             # is_credential = TRUE -> peak group processing and output
+             if (is_credential) {
+               # extract credentialed peak group ---------------------------------
+               list_credential_pg <- lapply(annot_all, function(x){
+                 x@credential_annotation$peak_group
+               })
+               
+               peak_group_id_table <- list_credential_pg %>%
+                 dplyr::bind_rows() %>%
+                 dplyr::select(peak_group_id, included_peak_group) %>%
+                 dplyr::distinct(peak_group_id, .keep_all = TRUE)
+               
+               base_num <- peak_group_id_table$peak_group_id %>% stringr::str_extract(pattern = '\\d+') %>% as.numeric()
+               base_peak <- peak_group_id_table$included_peak_group %>% stringr::str_split(pattern = '_\\[|_M', simplify = TRUE) %>% .[,1]
+               # base_adduct <- peak_group_id_table$included_peak_group %>% stringr::str_extract(pattern = '\\[\\d*M.+|M\\+|M\\-')
+               base_adduct <- peak_group_id_table$included_peak_group %>% stringr::str_extract(pattern = '(\\[\\d*M.+)')
+               
+               peak_all <- lapply(annot_all, function(x){
+                 x@peak_info %>% tibble::as_tibble()
+               }) %>% dplyr::bind_rows()
+               base_mz <- match(base_peak, peak_all$name) %>% peak_all$mz[.]
+               base_neutral_mass <- mapply(function(x, y){
+                 convertMz2Adduct(base_mz = x, base_adduct = y, adduct_list = y)$exact_mass
+               },
+               x = base_mz,
+               y = base_adduct)
+               # convertMz2Adduct(base_mz = 220.1176, base_adduct = '[M+H]+', adduct_list = '[M-H]-')$exact_mass
+               # convertMz2Adduct(base_mz = base_mz[4], base_adduct = base_adduct[4], adduct_list = base_adduct[4])$exact_mass
+               # convertMz2Adduct(base_mz = 664.1144, base_adduct = '[M]+', adduct_list = '[M]+')$exact_mass
+               
+               peak_group_id_table <- peak_group_id_table %>%
+                 dplyr::mutate(base_peak = base_peak,
+                               base_adduct = base_adduct,
+                               base_num = base_num,
+                               base_mz = base_mz,
+                               base_neutral_mass = base_neutral_mass) %>%
+                 dplyr::arrange(base_num)
+               
+               dir.create(file.path(path_output, '00_intermediate_data'), showWarnings = FALSE, recursive = TRUE)
+               save(peak_group_id_table, file = file.path(path_output, '00_intermediate_data', 'peak_group_id_table'), version = 2)
+               
+               cat('Export peak group table ...\n')
+               list_peak_group <- generateExportTablePeakGroup(annot_all = annot_all, peak_group_id_table = peak_group_id_table)
+               
+               dir.create(file.path(path_output, '00_intermediate_data'), showWarnings = FALSE, recursive = TRUE)
+               save(list_peak_group, file = file.path(path_output, '00_intermediate_data', 'list_peak_group'), version = 2)
+               
+               table_peak_group <- list_peak_group %>%
+                 dplyr::bind_rows() %>%
+                 dplyr::select(peak_name:ccs, isotope, adduct, peak_group_id, base_peak, rela_peaks) %>%
+                 dplyr::mutate(pg_num = as.numeric(stringr::str_extract(peak_group_id, pattern = '\\d+'))) %>%
+                 dplyr::arrange(pg_num) %>%
+                 dplyr::distinct(peak_name, peak_group_id, .keep_all = TRUE) %>%
+                 dplyr::select(-pg_num) %>%
+                 dplyr::select(peak_group_id, dplyr::everything()) %>%
+                 dplyr::mutate(mz = round(mz, 4),
+                               rt = round(rt, 1)) %>%
+                 tidyr::replace_na(list('adduct' = ''))
+               
+               # replace base_peak and neutral mass
+               table_peak_group$base_peak <- match(table_peak_group$peak_group_id, peak_group_id_table$peak_group_id) %>%
+                 peak_group_id_table$base_peak[.]
+               table_peak_group$neutral_mass <- match(table_peak_group$peak_group_id, peak_group_id_table$peak_group_id) %>%
+                 peak_group_id_table$base_neutral_mass[.]
                table_peak_group <- table_peak_group %>%
-                 dplyr::select(-ccs)
+                 dplyr::select(peak_group_id:base_peak, neutral_mass, dplyr::everything()) %>%
+                 dplyr::mutate(neutral_mass = round(neutral_mass, 4)) %>%
+                 dplyr::rename(num_peaks = rela_peaks)
+               
+               if (!(instrument %in% c("AgilentDTIMMS", "BrukerTIMS", "WatersTWIMMS"))) {
+                 table_peak_group <- table_peak_group %>%
+                   dplyr::select(-ccs)
+               }
+               
+               readr::write_csv(table_peak_group, file = file.path(path_output, 'table2_peak_group.csv'))
+             } else {
+               peak_group_id_table = NULL
              }
-
-             readr::write_csv(table_peak_group, file = file.path(path_output, 'table2_peak_group.csv'))
-
-
+             
 
              cat('Export identification table ...\n')
              list_identification <- generateExporTableIden(annot_all = annot_all,
@@ -803,7 +814,9 @@ setGeneric(name = 'generateExportTable',
                                                            direction = direction,
                                                            tolerance_rt_range = tolerance_rt_range,
                                                            lib = lib,
-                                                           test_evaluation = test_evaluation)
+                                                           test_evaluation = test_evaluation,
+                                                           # for skip functions
+                                                           is_credential = is_credential)
 
              dir.create(file.path(path_output, '00_intermediate_data'), showWarnings = FALSE, recursive = TRUE)
              save(list_identification, file = file.path(path_output, '00_intermediate_data', 'list_identification'), version = 2)
@@ -817,7 +830,12 @@ setGeneric(name = 'generateExportTable',
 
 
              # retrieve rt errors for identification from recursive
-             table_identification <- replaceRtError(table_identification = table_identification, path = path)
+             # skip is_anno_mrn function
+             # table_identification <- replaceRtError(table_identification = table_identification, path = path)
+             if (is_anno_mrn) {
+               table_identification <- replaceRtError(table_identification = table_identification, path = path)
+             }
+             
              table_identification <- calculateExportTableScore(table_identification = table_identification,
                                                                instrument = instrument,
                                                                ...)
@@ -1137,12 +1155,13 @@ setGeneric(name = 'generateExporTableIden',
              peak_group_id_table,
              direction = c('reverse', 'forward'),
              tolerance_rt_range = 30,
-             lib = 'zhuMetLib',
+             lib = 'zhumetlib_qtof',
              test_evaluation = c('No', '200STD', '46STD'),
+             is_credential = TRUE,
              ...
            ){
              # load some intermediate data
-             if (lib %in% c("zhuMetLib", 'zhuMetLib_orbitrap')) {
+             if (lib %in% c("zhumetlib_qtof", 'zhumetlib_orbitrap')) {
                data("zhuMetlib", envir = environment())
                cpd_info <- zhuMetlib$meta$compound
              }
@@ -1152,20 +1171,33 @@ setGeneric(name = 'generateExporTableIden',
                cpd_info <- fiehnHilicLib$meta$compound
              }
 
-             if (lib == 'zhuRPLib') {
-               data("zhuRPlib", envir = environment())
-               cpd_info <- zhuRPlib$meta$compound
-             }
-
              temp_colname_ms2 <- ifelse(direction == 'forward', 'ms2_score_forward', 'ms2_score_reverse')
 
-             idx <- match(peak_group_id_table$base_peak, names(annot_all))
+             # idx <- match(peak_group_id_table$base_peak, names(annot_all))
+             # idx: extract idresults from annot_all
+             if (is_credential) {
+               idx <- match(peak_group_id_table$base_peak, names(annot_all))
+             } else {
+               idx_temp <- sapply(seq_along(annot_all), function(idx_annot_all) {
+                 temp_annot_all <- annot_all[[idx_annot_all]]
+                 a <- temp_annot_all@initial_seed_annotation %>% nrow()
+                 b <- temp_annot_all@recursive_annotation %>% nrow()
+                 sum <- a+b
+                 return(sum)
+               })
+               idx <- which(idx_temp > 0)
+             }
 
              annot_base_peaks <- lapply(seq_along(idx), function(i){
                # cat(i, ' ')
-               temp_base_peak <- peak_group_id_table$base_peak[i]
-               temp_base_peak_adduct <- peak_group_id_table$base_adduct[i]
-               temp_peak_group_id <- peak_group_id_table$peak_group_id[i]
+               # temp_base_peak <- peak_group_id_table$base_peak[i]
+               # temp_base_peak_adduct <- peak_group_id_table$base_adduct[i]
+               # temp_peak_group_id <- peak_group_id_table$peak_group_id[i]
+               if (is_credential) {
+                 temp_base_peak <- peak_group_id_table$base_peak[i]
+                 temp_base_peak_adduct <- peak_group_id_table$base_adduct[i]
+                 temp_peak_group_id <- peak_group_id_table$peak_group_id[i]
+               }
 
                temp_idx <- idx[i]
                temp_annot_all <- annot_all[[temp_idx]]
@@ -1365,12 +1397,27 @@ setGeneric(name = 'generateExporTableIden',
                # merge initial_seed_annotation and recursive annotation
                #   1. keep ids with same adduct
                #   2. keep the highest confidence level
-               temp_merge1 <- temp_initial_seed %>%
-                 dplyr::bind_rows(temp_recursive) %>%
-                 dplyr::filter(adduct == temp_base_peak_adduct) %>%
-                 # dplyr::distinct(inchikey1, .keep_all = TRUE) %>%
-                 # dplyr::distinct(id, id_zhulab, .keep_all = TRUE) %>%
-                 dplyr::arrange(confidence_level)
+               # temp_merge1 <- temp_initial_seed %>%
+               #   dplyr::bind_rows(temp_recursive) %>%
+               #   dplyr::filter(adduct == temp_base_peak_adduct) %>%
+               #   # dplyr::distinct(inchikey1, .keep_all = TRUE) %>%
+               #   # dplyr::distinct(id, id_zhulab, .keep_all = TRUE) %>%
+               #   dplyr::arrange(confidence_level)
+               if (is_credential) {
+                 temp_merge1 <- temp_initial_seed %>%
+                   dplyr::bind_rows(temp_recursive) %>%
+                   dplyr::filter(adduct == temp_base_peak_adduct) %>%
+                   # dplyr::distinct(inchikey1, .keep_all = TRUE) %>%
+                   # dplyr::distinct(id, id_zhulab, .keep_all = TRUE) %>%
+                   dplyr::arrange(confidence_level)
+               } else {
+                 temp_merge1 <- temp_initial_seed %>%
+                   dplyr::bind_rows(temp_recursive) %>%
+                   # dplyr::filter(adduct == temp_base_peak_adduct) %>%
+                   # dplyr::distinct(inchikey1, .keep_all = TRUE) %>%
+                   # dplyr::distinct(id, id_zhulab, .keep_all = TRUE) %>%
+                   dplyr::arrange(confidence_level)
+               }
 
                # dereplicates for No_NA and NAs
                temp_merge1_1 <- temp_merge1 %>%
@@ -1397,20 +1444,42 @@ setGeneric(name = 'generateExporTableIden',
 
                temp_merge1 <- peak_info %>% dplyr::bind_cols(temp_merge1)
 
-               # add credential peak group information
-               temp_credential_pg <- temp_annot_all@credential_annotation$peak_group
-               temp_idx <- paste(temp_merge1$peak_name, temp_merge1$adduct, sep = '_') %>% match(temp_credential_pg$included_peak_group)
-               temp_merge2 <- temp_merge1 %>%
-                 dplyr::mutate(peak_group_id = temp_credential_pg$peak_group_id[temp_idx],
-                               base_peak = temp_credential_pg$included_peak_group[temp_idx],
-                               rela_peaks = temp_credential_pg$annotated_peaks[temp_idx]) %>%
-                 dplyr::filter(!is.na(peak_group_id))
-
-               # add credential peak formula information
-               temp_credential_formula <- temp_annot_all@credential_annotation$formula_prediction
-               temp_merge3 <- temp_merge2 %>%
-                 dplyr::mutate(cons_formula_pred = formula %in% temp_credential_formula$formula)
-
+               # # add credential peak group information
+               # temp_credential_pg <- temp_annot_all@credential_annotation$peak_group
+               # temp_idx <- paste(temp_merge1$peak_name, temp_merge1$adduct, sep = '_') %>% match(temp_credential_pg$included_peak_group)
+               # temp_merge2 <- temp_merge1 %>%
+               #   dplyr::mutate(peak_group_id = temp_credential_pg$peak_group_id[temp_idx],
+               #                 base_peak = temp_credential_pg$included_peak_group[temp_idx],
+               #                 rela_peaks = temp_credential_pg$annotated_peaks[temp_idx]) %>%
+               #   dplyr::filter(!is.na(peak_group_id))
+               # 
+               # # add credential peak formula information
+               # temp_credential_formula <- temp_annot_all@credential_annotation$formula_prediction
+               # temp_merge3 <- temp_merge2 %>%
+               #   dplyr::mutate(cons_formula_pred = formula %in% temp_credential_formula$formula)
+               if (is_credential) {
+                 # add credential peak group information
+                 temp_credential_pg <- temp_annot_all@credential_annotation$peak_group
+                 temp_idx <- paste(temp_merge1$peak_name, temp_merge1$adduct, sep = '_') %>% match(temp_credential_pg$included_peak_group)
+                 temp_merge2 <- temp_merge1 %>%
+                   dplyr::mutate(peak_group_id = temp_credential_pg$peak_group_id[temp_idx],
+                                 base_peak = temp_credential_pg$included_peak_group[temp_idx],
+                                 rela_peaks = temp_credential_pg$annotated_peaks[temp_idx]) %>%
+                   dplyr::filter(!is.na(peak_group_id))
+                 
+                 # add credential peak formula information
+                 temp_credential_formula <- temp_annot_all@credential_annotation$formula_prediction
+                 temp_merge3 <- temp_merge2 %>%
+                   dplyr::mutate(cons_formula_pred = formula %in% temp_credential_formula$formula)
+                 
+               } else {
+                 temp_merge3 <- temp_merge1 %>%
+                   dplyr::mutate(peak_group_id = NA,
+                                 base_peak = NA,
+                                 rela_peaks = NA,
+                                 cons_formula_pred = NA)
+               }
+               
                return(temp_merge3)
              })
 

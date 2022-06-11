@@ -33,7 +33,10 @@ setGeneric(name = 'generateMetDNA2Report',
              export_type = c('html', 'pdf', 'all'),
              extension_step = c('0', '1', '2', '3', '4', '5', '6', '7', '8'),
              is_rt_calibration = TRUE,
-             is_bio_interpret = TRUE
+             is_bio_interpret = TRUE,
+             # for skip functions
+             is_anno_mrn = TRUE,
+             is_credential = TRUE
            ){
 
              export_type <- match.arg(export_type)
@@ -91,29 +94,32 @@ setGeneric(name = 'generateMetDNA2Report',
                save(annotation_summary, file = file.path(path_output, '01_template', 'annotation_summary.RData'), version = 2)
 
                # generate recursive summary table
-               load(file.path(path, '02_result_MRN_annotation/00_intermediate_data', 'tags2_after_redundancy_remove'))
-               data("cpd_emrn", envir = environment())
-               recursive_summary <- generateRecursiveSummary4Report(result_recursive = tags2_after_redundancy_remove,
+               if (is_anno_mrn) {
+                 load(file.path(path, '02_result_MRN_annotation/00_intermediate_data', 'tags2_after_redundancy_remove'))
+                 data("cpd_emrn", envir = environment())
+                 recursive_summary <- generateRecursiveSummary4Report(result_recursive = tags2_after_redundancy_remove,
                                                                     cpd_emrn = cpd_emrn)
-               save(recursive_summary, file = file.path(path_output, '01_template', 'recursive_summary.RData'), version = 2)
-
+                 save(recursive_summary, file = file.path(path_output, '01_template', 'recursive_summary.RData'), version = 2)
+               }
+               
                # generate credential summary table
-               load(file.path(path, '03_annotation_credential/00_intermediate_data', 'annotation_initial.RData'))
-               load(file.path(path, '03_annotation_credential/00_intermediate_data', 'list_peak_group_annotation_concised.RData'))
-               options(readr.num_columns = 0)
-               result_credential_initial <- annotation_initial
-               result_credential_pg <- list_peak_group_annotation_concised
-               result_credential <- readr::read_csv(file.path(path, '03_annotation_credential', 'annontation_credential_long.csv'))
-               result_credential_filter <- readr::read_csv(file.path(path, '03_annotation_credential', 'annontation_credential_filter.csv'))
-
-               credential_summary <- generateCredentialSummary4Report(result_credential_initial = result_credential_initial,
-                                                                      result_credential = result_credential,
-                                                                      result_credential_pg = result_credential_pg,
-                                                                      result_credential_filter = result_credential_filter)
-
-               save(credential_summary, file = file.path(path_output, '01_template', 'credential_summary.RData'), version = 2)
-
-
+               if (is_credential) {
+                 load(file.path(path, '03_annotation_credential/00_intermediate_data', 'annotation_initial.RData'))
+                 load(file.path(path, '03_annotation_credential/00_intermediate_data', 'list_peak_group_annotation_concised.RData'))
+                 options(readr.num_columns = 0)
+                 result_credential_initial <- annotation_initial
+                 result_credential_pg <- list_peak_group_annotation_concised
+                 result_credential <- readr::read_csv(file.path(path, '03_annotation_credential', 'annontation_credential_long.csv'))
+                 result_credential_filter <- readr::read_csv(file.path(path, '03_annotation_credential', 'annontation_credential_filter.csv'))
+                 
+                 credential_summary <- generateCredentialSummary4Report(result_credential_initial = result_credential_initial,
+                                                                        result_credential = result_credential,
+                                                                        result_credential_pg = result_credential_pg,
+                                                                        result_credential_filter = result_credential_filter)
+                 
+                 save(credential_summary, file = file.path(path_output, '01_template', 'credential_summary.RData'), version = 2)
+               }
+               
                # generate biolog interpretation summary table
                if (is_bio_interpret) {
                  file.copy(from = file.path(path, '04_biology_intepretation/00_intermediate_data', 'result_stat.RData'),
@@ -207,84 +213,92 @@ setGeneric(name = 'generateMetDNA2Report',
                rm('table_identification');gc()
 
                # generate recursive summary table
-               load(file.path(path, 'POS', '02_result_MRN_annotation/00_intermediate_data', 'tags2_after_redundancy_remove'))
-               data("cpd_emrn", envir = environment())
-               recursive_summary_pos <- generateRecursiveSummary4Report(result_recursive = tags2_after_redundancy_remove,
-                                                                        cpd_emrn = cpd_emrn)
-               save(recursive_summary_pos, file = file.path(path_output, '01_template', 'recursive_summary_pos.RData'), version = 2)
-               rm('tags2_after_redundancy_remove');gc()
-
-               load(file.path(path, 'NEG', '02_result_MRN_annotation/00_intermediate_data', 'tags2_after_redundancy_remove'))
-               recursive_summary_neg <- generateRecursiveSummary4Report(result_recursive = tags2_after_redundancy_remove,
-                                                                        cpd_emrn = cpd_emrn)
-               save(recursive_summary_neg, file = file.path(path_output, '01_template', 'recursive_summary_neg.RData'), version = 2)
-               rm('tags2_after_redundancy_remove', 'cpd_emrn');gc()
-
+               if (is_anno_mrn) {
+                 load(file.path(path, 'POS', '02_result_MRN_annotation/00_intermediate_data', 'tags2_after_redundancy_remove'))
+                 data("cpd_emrn", envir = environment())
+                 recursive_summary_pos <- generateRecursiveSummary4Report(result_recursive = tags2_after_redundancy_remove,
+                                                                          cpd_emrn = cpd_emrn)
+                 save(recursive_summary_pos, file = file.path(path_output, '01_template', 'recursive_summary_pos.RData'), version = 2)
+                 rm('tags2_after_redundancy_remove');gc()
+                 
+                 load(file.path(path, 'NEG', '02_result_MRN_annotation/00_intermediate_data', 'tags2_after_redundancy_remove'))
+                 recursive_summary_neg <- generateRecursiveSummary4Report(result_recursive = tags2_after_redundancy_remove,
+                                                                          cpd_emrn = cpd_emrn)
+                 save(recursive_summary_neg, file = file.path(path_output, '01_template', 'recursive_summary_neg.RData'), version = 2)
+                 rm('tags2_after_redundancy_remove', 'cpd_emrn');gc()
+               }
+               
                # generate credential summary table
-               load(file.path(path, 'POS', '03_annotation_credential/00_intermediate_data', 'annotation_initial.RData'))
-               load(file.path(path, 'POS', '03_annotation_credential/00_intermediate_data', 'list_peak_group_annotation_concised.RData'))
-               options(readr.num_columns = 0)
-               result_credential_initial_pos <- annotation_initial
-               result_credential_pg_pos <- list_peak_group_annotation_concised
-               result_credential_pos <- readr::read_csv(file.path(path, 'POS', '03_annotation_credential', 'annontation_credential_long.csv'))
-               result_credential_filter_pos <- readr::read_csv(file.path(path, 'POS', '03_annotation_credential', 'annontation_credential_filter.csv'))
-               credential_summary_pos <- generateCredentialSummary4Report(result_credential_initial = result_credential_initial_pos,
-                                                                          result_credential = result_credential_pos,
-                                                                          result_credential_pg = result_credential_pg_pos,
-                                                                          result_credential_filter = result_credential_filter_pos)
-               save(credential_summary_pos, file = file.path(path_output, '01_template', 'credential_summary_pos.RData'), version = 2)
-               rm('annotation_initial', 'list_peak_group_annotation_concised');gc()
-
-
-               load(file.path(path, 'NEG', '03_annotation_credential/00_intermediate_data', 'annotation_initial.RData'))
-               load(file.path(path, 'NEG', '03_annotation_credential/00_intermediate_data', 'list_peak_group_annotation_concised.RData'))
-               options(readr.num_columns = 0)
-               result_credential_initial_neg <- annotation_initial
-               result_credential_pg_neg <- list_peak_group_annotation_concised
-               result_credential_neg <- readr::read_csv(file.path(path, 'NEG', '03_annotation_credential', 'annontation_credential_long.csv'))
-               result_credential_filter_neg <- readr::read_csv(file.path(path, 'NEG', '03_annotation_credential', 'annontation_credential_filter.csv'))
-               credential_summary_neg <- generateCredentialSummary4Report(result_credential_initial = result_credential_initial_neg,
-                                                                          result_credential = result_credential_neg,
-                                                                          result_credential_pg = result_credential_pg_neg,
-                                                                          result_credential_filter = result_credential_filter_neg)
-               save(credential_summary_neg, file = file.path(path_output, '01_template', 'credential_summary_neg.RData'), version = 2)
-               rm('annotation_initial', 'list_peak_group_annotation_concised');gc()
-
+               if (is_credential) {
+                 load(file.path(path, 'POS', '03_annotation_credential/00_intermediate_data', 'annotation_initial.RData'))
+                 load(file.path(path, 'POS', '03_annotation_credential/00_intermediate_data', 'list_peak_group_annotation_concised.RData'))
+                 options(readr.num_columns = 0)
+                 result_credential_initial_pos <- annotation_initial
+                 result_credential_pg_pos <- list_peak_group_annotation_concised
+                 result_credential_pos <- readr::read_csv(file.path(path, 'POS', '03_annotation_credential', 'annontation_credential_long.csv'))
+                 result_credential_filter_pos <- readr::read_csv(file.path(path, 'POS', '03_annotation_credential', 'annontation_credential_filter.csv'))
+                 credential_summary_pos <- generateCredentialSummary4Report(result_credential_initial = result_credential_initial_pos,
+                                                                            result_credential = result_credential_pos,
+                                                                            result_credential_pg = result_credential_pg_pos,
+                                                                            result_credential_filter = result_credential_filter_pos)
+                 save(credential_summary_pos, file = file.path(path_output, '01_template', 'credential_summary_pos.RData'), version = 2)
+                 rm('annotation_initial', 'list_peak_group_annotation_concised');gc()
+                 
+                 
+                 load(file.path(path, 'NEG', '03_annotation_credential/00_intermediate_data', 'annotation_initial.RData'))
+                 load(file.path(path, 'NEG', '03_annotation_credential/00_intermediate_data', 'list_peak_group_annotation_concised.RData'))
+                 options(readr.num_columns = 0)
+                 result_credential_initial_neg <- annotation_initial
+                 result_credential_pg_neg <- list_peak_group_annotation_concised
+                 result_credential_neg <- readr::read_csv(file.path(path, 'NEG', '03_annotation_credential', 'annontation_credential_long.csv'))
+                 result_credential_filter_neg <- readr::read_csv(file.path(path, 'NEG', '03_annotation_credential', 'annontation_credential_filter.csv'))
+                 credential_summary_neg <- generateCredentialSummary4Report(result_credential_initial = result_credential_initial_neg,
+                                                                            result_credential = result_credential_neg,
+                                                                            result_credential_pg = result_credential_pg_neg,
+                                                                            result_credential_filter = result_credential_filter_neg)
+                 save(credential_summary_neg, file = file.path(path_output, '01_template', 'credential_summary_neg.RData'), version = 2)
+                 rm('annotation_initial', 'list_peak_group_annotation_concised');gc()
+               }
+               
              }
 
              # render report
-             if (export_type == "html"){
-               rmarkdown::render(file.path(path_output, '01_template', "MetDNA2_template.Rmd"),
-                                 output_format = rmarkdown::html_document(),
-                                 params = list(is_rt_calibration = is_rt_calibration,
-                                               is_bio_interpret = is_bio_interpret)
-               )
+             if ((is_anno_mrn) & (is_credential)) {
+               if (export_type == "html") {
+                 rmarkdown::render(file.path(path_output, '01_template', "MetDNA2_template.Rmd"),
+                                   output_format = rmarkdown::html_document(),
+                                   params = list(is_rt_calibration = is_rt_calibration,
+                                                 is_bio_interpret = is_bio_interpret)
+                 )
+               }
+               
+               if (export_type == "pdf") {
+                 rmarkdown::render(file.path(path_output, '01_template', "MetDNA2_template.Rmd"),
+                                   output_format = rmarkdown::pdf_document(),
+                                   params = list(is_rt_calibration = is_rt_calibration,
+                                                 is_bio_interpret = is_bio_interpret)
+                 )
+               }
+               if (export_type == "all") {
+                 rmarkdown::render(file.path(path_output, '01_template', "MetDNA2_template.Rmd"),
+                                   output_format = rmarkdown::html_document(),
+                                   params = list(is_rt_calibration = is_rt_calibration,
+                                                 is_bio_interpret = is_bio_interpret))
+                 rmarkdown::render(file.path(path_output, '01_template', "MetDNA2_template.Rmd"),
+                                   output_format = rmarkdown::pdf_document(),
+                                   params = list(is_rt_calibration = is_rt_calibration,
+                                                 is_bio_interpret = is_bio_interpret))
+               }
+               
+               file.copy(from = file.path(path_output, '01_template', "MetDNA2_template.html"),
+                         to = file.path(path_output, 'MetDNA2_analysis_report.html'),
+                         overwrite = TRUE,
+                         recursive = TRUE)
+               
+             } else {
+               cat('Note: Analysis report is only generated with all function enabled at current version!\n')
              }
-
-             if (export_type == "pdf"){
-               rmarkdown::render(file.path(path_output, '01_template', "MetDNA2_template.Rmd"),
-                                 output_format = rmarkdown::pdf_document(),
-                                 params = list(is_rt_calibration = is_rt_calibration,
-                                               is_bio_interpret = is_bio_interpret)
-               )
-             }
-
-             if (export_type == "all"){
-               rmarkdown::render(file.path(path_output, '01_template', "MetDNA2_template.Rmd"),
-                                 output_format = rmarkdown::html_document(),
-                                 params = list(is_rt_calibration = is_rt_calibration,
-                                               is_bio_interpret = is_bio_interpret))
-               rmarkdown::render(file.path(path_output, '01_template', "MetDNA2_template.Rmd"),
-                                 output_format = rmarkdown::pdf_document(),
-                                 params = list(is_rt_calibration = is_rt_calibration,
-                                               is_bio_interpret = is_bio_interpret))
-             }
-
-             file.copy(from = file.path(path_output, '01_template', "MetDNA2_template.html"),
-                       to = file.path(path_output, 'MetDNA2_analysis_report.html'),
-                       overwrite = TRUE,
-                       recursive = TRUE)
-
+             
              # unlink(file.path(path_output, '01_template'), recursive = TRUE, force = TRUE)
 
            })

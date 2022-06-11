@@ -2,7 +2,7 @@ Package: MetDNA2
 Type: Package
 Title: A R pacakge to annotate known and unknown metabolites in LC-MS
         based metabolomics
-Version: 0.6.64
+Version: 1.2.10
 Author: Zhiwei Zhou
 Maintainer: Zhiwei Zhou <zhouzw@sioc.ac.cn>
 Description: More about what it does (maybe more than one line)
@@ -13,10 +13,11 @@ LazyData: true
 Imports: dplyr (>= 1.0.2), tidyr (>= 1.1.2), stringr (>= 1.4.0), tibble
         (>= 3.0.3), purrr (>= 0.3.4), ggplot2, SpectraTools (>= 0.2.3),
         knitr, igraph, pbapply, Rdisop, readr, randomForest, pryr,
-        BiocParallel, magrittr, MetBioInterpretation, rmarkdown, caret
+        BiocParallel, magrittr, MetBioInterpretation, rmarkdown, caret,
+        MetLib
 RoxygenNote: 7.1.1
-Depends: R (>= 2.10)
+Depends: R (>= 3.5.0)
 Suggests: testthat, ggpubr
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2022-01-22 05:55:40 UTC; zhouzw
+Packaged: 2022-05-03 05:28:19 UTC; Rittoku

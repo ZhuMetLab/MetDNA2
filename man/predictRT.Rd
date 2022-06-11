@@ -12,7 +12,7 @@ predictRT(
   md_kegg_cpd,
   use_default_md = TRUE,
   column = c("hilic", "rp"),
-  method_lc = c("Amide12min", "Amide23min", "Other", "MetlinRP", "zhulabRP"),
+  method_lc = c("Amide12min", "Amide23min", "Other", "MetlinRP", "RP12min"),
   metdna_version = c("version2", "version1"),
   use_pretrained_model = FALSE
 )

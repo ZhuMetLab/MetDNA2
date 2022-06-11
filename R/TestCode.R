@@ -4331,3 +4331,333 @@
 #            is_anno_mrn = TRUE,
 #            is_credential = TRUE,
 #            is_bio_interpret = FALSE)
+
+################################################################################
+# #
+# runMetDNA2(
+#   path_pos = "/home/zhouzw/Data_processing/20220118_test_pred_rt_caret_package/testV1.0/",
+#   metdna_version = "version2",
+#   polarity = "positive",
+#   instrument = "SciexTripleTOF",
+#   column = "hilic",
+#   ce = "30",
+#   method_lc = "Amide23min",
+#   correct_p = FALSE,
+#   extension_step = "2",
+#   comp_group = c("pos_3_DDA", "QC"),
+#   species = "hsa",
+#   dir_GenForm = '/home/zhouzw/software/genform-code-r8-trunk/src/GenForm/GenForm/bin/Release',
+#   p_cutoff = 0.050000,
+#   fc_cutoff = 1.000000,
+#   is_rt_calibration = TRUE,
+#   is_anno_initial_seed = FALSE)
+
+################################################################################
+# runMetDNA2(
+#   path_pos = "/home/zhouzw/Data_processing/20220222_rp_method_test/POS/",
+#   metdna_version = "version2",
+#   polarity = "positive",
+#   instrument = "SciexTripleTOF",
+#   column = "hilic",
+#   ce = "30",
+#   method_lc = "Amide23min",
+#   correct_p = FALSE,
+#   extension_step = "2",
+#   comp_group = c("pos_3_DDA", "QC"),
+#   species = "hsa",
+#   is_webserver = FALSE,
+#   dir_GenForm = '/home/zhouzw/software/genform-code-r8-trunk/src/GenForm/GenForm/bin/Release',
+#   p_cutoff = 0.050000,
+#   fc_cutoff = 1.000000,
+#   is_rt_calibration = TRUE,
+#   is_anno_initial_seed = FALSE)
+
+#
+# runMetDNA2(
+#   path_pos = "/home/zhouzw/Data_processing/20220222_rp_method_test/POS/",
+#   metdna_version = "version2",
+#   polarity = "positive",
+#   instrument = "ThermoExploris",
+#   column = "rp",
+#   ce = "SNCE20_30_40%",
+#   method_lc = "RP12min",
+#   correct_p = FALSE,
+#   extension_step = "2",
+#   comp_group = c("QC", "plasma"),
+#   species = "hsa",
+#   dir_GenForm = '/home/zhouzw/software/genform-code-r8-trunk/src/GenForm/GenForm/bin/Release',
+#   p_cutoff = 0.050000,
+#   fc_cutoff = 1.000000,
+#   is_rt_calibration = TRUE)
+#
+#
+# runMetDNA2(
+#   path_pos = "/home/zhouzw/Data_processing/20220222_rp_method_test/POS/",
+#   metdna_version = "version2",
+#   polarity = "positive",
+#   instrument = "ThermoExploris",
+#   column = "rp",
+#   ce = "SNCE20_30_40%",
+#   method_lc = "RP12min",
+#   correct_p = FALSE,
+#   extension_step = "2",
+#   comp_group = c("QC", "plasma"),
+#   species = "hsa",
+#   is_webserver = FALSE,
+#   dir_GenForm = '/home/zhouzw/software/genform-code-r8-trunk/src/GenForm/GenForm/bin/Release',
+#   p_cutoff = 0.050000,
+#   fc_cutoff = 1.000000,
+#   is_rt_calibration = TRUE)
+
+################################################################################
+# 20220222 update rt_ref for RP12min -------------------------------------------
+# lib_rt$zhulabRP_exp
+# pos_table <- readr::read_csv('/home/zhouzw/Data_processing/20220222_rp_method_test/RT_recalibration_table_pos.csv')
+# idx_pos <- match(pos_table$id.zhulab, lib_rt$zhulabRP_exp$id)
+#
+# neg_table <- readr::read_csv('/home/zhouzw/Data_processing/20220222_rp_method_test/RT_recalibration_table_neg.csv')
+# idx_neg <- match(pos_table$id.zhulab, lib_rt$zhulabRP_exp$id)
+#
+# ids <- c(pos_table$id.zhulab, neg_table$id.zhulab) %>% unique()
+# idx <- match(ids, lib_rt$zhulabRP_exp$id)
+# temp <- data.frame(name = ids, rt = lib_rt$zhulabRP_exp$rt[idx], stringsAsFactors = FALSE)
+# rt_ref$zhulabRP <- temp
+#
+# names(rt_ref)[4] <- 'RP12min'
+#
+# usethis::use_data(rt_ref, overwrite = TRUE)
+
+
+################################################################################
+
+# load('/home/zhouzw/Data_processing/01_debug/220301_ZhangdanXie/MetDNA2/NEG/00_annotation_table/00_intermediate_data/annot_all')
+# generateExportTable(annot_all = annot_all,
+#                     path = '/home/zhouzw/Data_processing/01_debug/220301_ZhangdanXie/MetDNA2/NEG/',
+#                     direction = 'reverse',
+#                     tolerance_rt_range = 30,
+#                     path = 'reverse',
+#                     instrument = 'ThermoExploris',
+#                     is_cred_formula_filter = FALSE,
+#                     is_anno_mrn = TRUE,
+#                     is_credential = TRUE)
+
+
+# generateExportTable(annot_all = annot_all,
+#                     direction = 'reverse',
+#                     tolerance_rt_range = 30,
+#                     lib = 'zhuMetLib',
+#                     path = '/home/zhouzw/Data_processing/01_debug/220301_ZhangdanXie/MetDNA2/NEG/',
+#                     instrument = 'SciexTripleTOF',
+#                     is_cred_formula_filter = FALSE,
+#                     candidate_num = 10,
+#                     mz_tol = 25,
+#                     rt_tol = 30)
+
+
+# /home/zhouzw/Data_processing/20220115_modify_RT_para/test_workflow/
+
+
+# runMetDNA2(
+#   path_pos = "/home/zhouzw/Data_processing/20220115_modify_RT_para/test_workflow/",
+#   metdna_version = "version2",
+#   polarity = "positive",
+#   instrument = "SciexTripleTOF",
+#   column = "hilic",
+#   ce = "30",
+#   method_lc = "Amide23min",
+#   correct_p = FALSE,
+#   extension_step = "2",
+#   comp_group = c("pos_3_DDA", "QC"),
+#   species = "hsa",
+#   is_webserver = FALSE,
+#   dir_GenForm = '/home/zhouzw/software/genform-code-r8-trunk/src/GenForm/GenForm/bin/Release',
+#   p_cutoff = 0.050000,
+#   fc_cutoff = 1.000000,
+#   is_rt_calibration = TRUE)
+
+# runMetDNA2(
+#   path_pos = "/home/zhouzw/Data_processing/20220115_modify_RT_para/test_workflow/",
+#   metdna_version = "version2",
+#   polarity = "positive",
+#   instrument = "SciexTripleTOF",
+#   column = "hilic",
+#   ce = "30",
+#   method_lc = "Amide23min",
+#   correct_p = FALSE,
+#   extension_step = "2",
+#   comp_group = c("pos_3_DDA", "QC"),
+#   species = "hsa",
+#   is_webserver = FALSE,
+#   dir_GenForm = '/home/zhouzw/software/genform-code-r8-trunk/src/GenForm/GenForm/bin/Release',
+#   p_cutoff = 0.050000,
+#   fc_cutoff = 1.000000,
+#   is_rt_calibration = TRUE, 
+#   is_anno_mrn = FALSE,
+#   is_rm_intermediate_data = FALSE)
+# 
+# 
+# runMetDNA2(
+#   path_pos = "/home/zhouzw/Data_processing/20220115_modify_RT_para/test_workflow3/",
+#   metdna_version = "version2",
+#   polarity = "positive",
+#   instrument = "SciexTripleTOF",
+#   column = "hilic",
+#   ce = "30",
+#   method_lc = "Amide23min",
+#   correct_p = FALSE,
+#   extension_step = "2",
+#   comp_group = c("pos_3_DDA", "QC"),
+#   species = "hsa",
+#   is_webserver = FALSE,
+#   dir_GenForm = '/home/zhouzw/software/genform-code-r8-trunk/src/GenForm/GenForm/bin/Release',
+#   p_cutoff = 0.050000,
+#   fc_cutoff = 1.000000,
+#   tolerance_rt_range = 20,
+#   is_rt_calibration = TRUE,
+#   is_anno_mrn = FALSE,
+#   is_credential = FALSE,
+#   is_rm_intermediate_data = FALSE)
+
+
+################################################################################
+# 
+# # library(MetDNA2)
+# runMetDNA2(ms1_file_pos = "data.csv",
+#            ms1_file_neg = "data.csv",
+#            sample_info_file_pos = "sample.info.csv",
+#            sample_info_file_neg = "sample.info.csv",
+#            path_pos = "/home/zhouzw/Data_processing/01_debug/220322_zhanghaosong/POS",
+#            # path_neg = "/home/zhouzw/Data_processing/01_debug/220322_zhanghaosong/NEG",
+#            metdna_version = 'version2',
+#            is_webserver = FALSE,
+#            is_rm_intermediate_data = FALSE,
+#            is_plot_ms2 = TRUE,
+#            ms2_type = 'msp',
+#            thread = 8,
+#            lib = 'zhumetlib_orbitrap',
+#            polarity = 'positive',
+#            instrument = "ThermoExploris",
+#            column = "rp",
+#            ce = "SNCE20_30_40%",
+#            method_lc = 'RP12min',
+#            is_rt_calibration = TRUE,
+#            extension_step = '0',
+#            comp_group = c("urine"),
+#            species = "hsa",
+#            p_cutoff = 0.05,
+#            fc_cutoff = 1.00,
+#            dir_GenForm = '/home/zhouzw/software/genform-code-r8-trunk/src/GenForm/GenForm/bin/Release',
+#            is_bio_interpret = F,
+#            is_anno_mrn = T,
+#            is_credential = T,
+#            adduct_limit_specLib = c('[M+H]+','[M]+','[M-H2O+H]+'),
+#            is_exported_report = T)
+
+################################################################################
+# 
+# 
+################################################################################
+# 20220412 test ----------------------------------------------------------------
+# 
+# runMetDNA2(
+#   path_pos = "D:/project/00_zhulab/01_metdna2/00_data/20220412_test_metdna2/",
+#   metdna_version = "version2",
+#   polarity = "positive",
+#   instrument = "ThermoExploris",
+#   column = "hilic",
+#   ce = "30",
+#   method_lc = "Amide23min",
+#   correct_p = FALSE,
+#   extension_step = "0",
+#   comp_group = c("pos_3_DDA", "QC"),
+#   species = "hsa",
+#   dir_GenForm = "D:/project/packages/GenForm/",
+#   platform = 'windows',
+#   p_cutoff = 0.050000,
+#   fc_cutoff = 1.000000,
+#   is_rt_calibration = TRUE,
+#   thread = 2,
+#   is_webserver = FALSE,
+#   is_rm_intermediate_data = FALSE,
+#   is_plot_ms2 = TRUE,
+#   is_anno_initial_seed = FALSE)
+
+# 
+# annotation_result = "ms2_match_annotation_result.csv"
+# ms2_data = "ms2"
+# prefer_adduct = "all"
+# use_default_md = TRUE
+# use_pretrained_model = FALSE
+# metdna_version = 'version2'
+# scoring_approach = 'dp'
+# direction = 'reverse'
+# instrument = 'ThermoExploris'
+# lib = 'zhumetlib_orbitrap'
+# column = "hilic"
+# method_lc = 'Amide23min'
+# excluded_adduct = NULL
+# polarity = "positive"
+# extension_step = '0'
+# threads = 3
+# path = '.'
+# max_isotope = 4
+# mz_tol = 15
+# mz_ppm_thr = 400
+# rt_tol1 = 3
+# rt_tol2 = 30
+# ccs_tol = 4
+# cor_tol = 0
+# int_tol = 500
+# dp_tol = 0.5
+# matched_frag_tol = 1
+# whether_link_frag = FALSE
+# max_step = 3
+# score_cutoff = 0
+# remain = FALSE
+# remain_per = 0.5
+# seed_neighbor_match_plot = TRUE
+# candidate_num = 3
+# # test_old_mrn = c('v0.3', 'v0.4'),
+# test_adduct_version = 'version2'
+# test_evaluation = 'No'
+# whether_use_predRT = TRUE
+# 
+# 
+
+################################################################################
+# load('D:/project/00_zhulab/01_metdna2/00_data/20220412_test_metdna2/test/adduct_table')
+# load('D:/project/00_zhulab/01_metdna2/00_data/20220412_test_metdna2/test/metabolic_network')
+# load('D:/project/00_zhulab/01_metdna2/00_data/20220412_test_metdna2/test/metabolite')
+# load('D:/project/00_zhulab/01_metdna2/00_data/20220412_test_metdna2/test/metabolite_ccs')
+# load('D:/project/00_zhulab/01_metdna2/00_data/20220412_test_metdna2/test/ms2')
+# load('D:/project/00_zhulab/01_metdna2/00_data/20220412_test_metdna2/test/peak_int')
+# load('D:/project/00_zhulab/01_metdna2/00_data/20220412_test_metdna2/test/round')
+# load('D:/project/00_zhulab/01_metdna2/00_data/20220412_test_metdna2/test/seed_idx')
+# load('D:/project/00_zhulab/01_metdna2/00_data/20220412_test_metdna2/test/tags2')
+# load('D:/project/00_zhulab/01_metdna2/00_data/20220412_test_metdna2/test/adduct_result')
+# 
+# max_isotope = 4
+# polarity = "positive"
+# instrument = 'ThermoExploris'
+# scoring_approach = 'dp'
+# rt_tol1 = 3 # rt_tol1 is absolute
+# rt_tol2 = 30 # rt_tol2 is relative
+# mz_tol = 15
+# mz_ppm_thr = 0
+# cor_tol = 0
+# int_tol = 500 # for isotope annotation
+# ccs_tol = 4 # for metaboliteAnnotation, %
+# dp_tol = 0.5
+# matched_frag_tol = 1
+# whether_link_frag = TRUE # whehter consider propagation with matched fragment number
+# max_step = 3
+# mz_tol_ms2 = 25 # fragment match tolerance
+# # cor.matrix,
+# remove_index = NULL
+# iso_annotation = TRUE
+# add_annotation = TRUE
+# met_annotation = TRUE
+# threads = 3
+# whether_use_predRT = TRUE
+
+################################################################################

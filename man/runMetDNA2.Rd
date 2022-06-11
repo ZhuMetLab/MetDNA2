@@ -33,9 +33,9 @@ runMetDNA2(
   column = c("hilic", "rp"),
   ce = c("30", "10", "20", "35,15", "40", "50", "NCE10", "NCE20", "NCE30", "NCE40",
     "NCE50", "SCE20_30_40\%", "SNCE20_30_40\%"),
-  method_lc = c("Amide12min", "Amide23min", "Other", "MetlinRP", "zhulabRP"),
+  method_lc = c("Amide12min", "Amide23min", "Other", "MetlinRP", "RP12min"),
   is_rt_calibration = TRUE,
-  mz_tol = 25,
+  mz_tol = 15,
   mz_ppm_thr = 400,
   tolerance_rt_range = 30,
   tolerance_ccs_range = 4,
@@ -46,7 +46,7 @@ runMetDNA2(
   rt_tol_combine_ms1_ms2 = 10,
   is_plot_ms2 = TRUE,
   adduct_limit_specLib = "all",
-  test_force_filtering_rt = NULL,
+  test_force_filtering_rt = 20,
   extension_step = c("0", "1", "2", "3", "4", "5", "6", "7", "8"),
   max_isotope = 4,
   rt_tol1 = 3,
@@ -60,10 +60,10 @@ runMetDNA2(
   remain = FALSE,
   remain_per = 0.5,
   seed_neighbor_match_plot = TRUE,
-  candidate_num = 5,
+  candidate_num = 10,
   scoring_approach_recursive = c("dp", "bonanza", "hybrid", "gnps"),
-  matched_frag_cutoff = 1,
-  whether_link_frag = FALSE,
+  matched_frag_cutoff = 4,
+  whether_link_frag = TRUE,
   use_pretrained_model = FALSE,
   use_redun_rm_result = TRUE,
   dir_GenForm = "/GenForm",
@@ -75,7 +75,7 @@ runMetDNA2(
   platform = "linux",
   test_rm_extra_anno_from_ini_seed = FALSE,
   is_plot_pseudo_MS1 = TRUE,
-  remove_conflict_seed_from_final_table = FALSE,
+  remove_conflict_seed_from_final_table = TRUE,
   comp_group = c("W03", "W30"),
   uni_test = c("t", "wilcox", "anova"),
   correct_p = FALSE,
@@ -118,7 +118,7 @@ ThermoExploris', "AgilentDTIMMS", "BrukerTIMS", 'WatersQTOF','WatersTWIMMS'. Def
 
 \item{ce}{"30", "10", "20", "35,15", "40", "50". Default: "30"}
 
-\item{method_lc}{'Amide12min', 'Amide23min', 'Other', 'MetlinRP'. Default: "Amide12min"}
+\item{method_lc}{'Amide12min', 'Amide23min', 'Other', 'MetlinRP', 'RP12min'. Default: "Amide12min"}
 
 \item{is_rt_calibration}{Only valid with 'Amide12min' and 'Amide23min' methods. Default: TRUE.}
 

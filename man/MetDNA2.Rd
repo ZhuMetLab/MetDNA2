@@ -28,7 +28,7 @@ MetDNA2(
   column = c("hilic", "rp"),
   ce = c("30", "10", "20", "35,15", "40", "50", "NCE10", "NCE20", "NCE30", "NCE40",
     "NCE50", "SCE20_30_40\%", "SNCE20_30_40\%"),
-  method_lc = c("Amide12min", "Amide23min", "Other", "MetlinRP", "zhulabRP"),
+  method_lc = c("Amide12min", "Amide23min", "Other", "MetlinRP", "RP12min"),
   is_rt_calibration = TRUE,
   mz_tol = 25,
   mz_ppm_thr = 400,
@@ -119,7 +119,7 @@ MetDNA2(
 
 \item{ce}{"30", "10", "20", "35,15", "40", "50". Default: "30"}
 
-\item{method_lc}{'Amide12min', 'Amide23min', 'Other', 'MetlinRP'. Default: "Amide12min"}
+\item{method_lc}{'Amide12min', 'Amide23min', 'Other', 'MetlinRP', 'RP12min'. Default: "Amide12min"}
 
 \item{is_rt_calibration}{Only valid with 'Amide12min' and 'Amide23min' methods. Default: TRUE.}
 

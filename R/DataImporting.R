@@ -572,7 +572,7 @@ showError <- function(expr,
 setGeneric(name = 'checkPara',
            def = function(
              path,
-             lib = c('zhuMetLib', 'zhuMetLib_orbitrap', 'fiehnHilicLib', 'zhuRPLib'),
+             lib = c('zhumetlib_qtof', 'zhumetlib_orbitrap', 'fiehnHilicLib'),
              polarity = c("positive", "negative"),
              instrument = c("SciexTripleTOF", "AgilentQTOF", "BrukerQTOF", "ThermoOrbitrap",
                             'ThermoExploris', "AgilentDTIMMS", "BrukerTIMS", 'WatersQTOF','WatersTWIMMS'),
@@ -580,7 +580,7 @@ setGeneric(name = 'checkPara',
              ce = c("30", "10", "20", "35,15", "40", "50",
                     'NCE10', 'NCE20', 'NCE30', 'NCE40', 'NCE50',
                     'SCE20_30_40%', "SNCE20_30_40%"),
-             method_lc = c('Amide12min', 'Amide23min', 'Other', 'MetlinRP', 'zhulabRP'),
+             method_lc = c('Amide12min', 'Amide23min', 'Other', 'MetlinRP', 'RP12min'),
              is_rt_calibration = TRUE
            ){
              # # parameter check and decision
@@ -602,18 +602,18 @@ setGeneric(name = 'checkPara',
 
              # check library
              if (instrument %in% c("SciexTripleTOF", "AgilentQTOF", "BrukerQTOF", "AgilentDTIMMS", "BrukerTIMS", "WatersTWIMMS", "WatersQTOF")) {
-              if (!(lib == 'zhuMetLib')) {
-                stop('Please check the parameter (lib), zhuMetLib is required for QTOF instrument\n')
+              if (!(lib == 'zhumetlib_qtof')) {
+                stop('Please check the parameter (lib), zhumetlib_qtof is required for QTOF instrument\n')
               }
              } else {
-               if (!(lib %in% c('zhuMetLib_orbitrap', 'fiehnHilicLib', 'zhuRPLib'))) {
-                 stop('Please check the parameter (lib), zhuMetLib_orbitrap/fiehnHilicLib/zhuRPLib is required for Obitrap instrument\n')
+               if (!(lib %in% c('zhumetlib_orbitrap', 'fiehnHilicLib'))) {
+                 stop('Please check the parameter (lib), zhumetlib_orbitrap/fiehnHilicLib is required for Obitrap instrument\n')
                }
              }
 
              # check ce
              switch (lib,
-                     'zhuMetLib' = {
+                     'zhumetlib_qtof' = {
                        if (!(ce %in% c("30", "10", "20", "35,15", "40", "50"))) {
                          stop('Please check collision energy, the ce', ce, 'is not included in the library ', lib, '\n')
                        }
@@ -623,14 +623,7 @@ setGeneric(name = 'checkPara',
                          stop('Please check collision energy, the ce', ce, 'is not included in the library ', lib, '\n')
                        }
                      },
-                     'zhuMetLib_orbitrap' = {
-                       if (!(ce %in% c("30", "10", "20",  "40", "50",
-                                       'NCE10', 'NCE20', 'NCE30', 'NCE40', 'NCE50',
-                                       'SCE20_30_40%', "SNCE20_30_40%"))) {
-                         stop('Please check collision energy, the ce', ce, 'is not included in the library ', lib, '\n')
-                       }
-                     },
-                     'zhuRPLib' = {
+                     'zhumetlib_orbitrap' = {
                        if (!(ce %in% c("30", "10", "20",  "40", "50",
                                        'NCE10', 'NCE20', 'NCE30', 'NCE40', 'NCE50',
                                        'SCE20_30_40%', "SNCE20_30_40%"))) {
@@ -643,13 +636,13 @@ setGeneric(name = 'checkPara',
              switch (column,
                      'hilic' = {
                        if (method_lc %in% c('Other', 'MetlinRP') & is_rt_calibration) {
-                         stop('Please check the parameter is_rt_calibration, the RT calibration only support Amide12min/Amide23min/zhulabRP')
+                         stop('Please check the parameter is_rt_calibration, the RT calibration only support Amide12min/Amide23min/RP12min')
                        }
                      },
 
                      'rp' = {
                        if (method_lc %in% c('Amide12min', 'Amide23min')) {
-                         stop('Please check the parameter method_lc, reverse column should choose MetlinRP, zhulabRP or Other')
+                         stop('Please check the parameter method_lc, reverse column should choose MetlinRP, RP12min or Other')
                        }
 
                        if (is_rt_calibration) {

@@ -13,7 +13,7 @@ annotateNeighbor(
   metdna_version = c("version2", "version1"),
   instrument = c("SciexTripleTOF", "AgilentQTOF", "BrukerQTOF", "ThermoOrbitrap",
     "ThermoExploris", "AgilentDTIMMS", "BrukerTIMS", "WatersQTOF", "WatersTWIMMS"),
-  method_lc = c("Amide12min", "Amide23min", "Other", "MetlinRP"),
+  method_lc = c("Amide12min", "Amide23min", "Other", "MetlinRP", "RP12min"),
   direction = c("forward", "reverse"),
   scoring_approach = c("dp", "bonanza", "hybrid", "gnps"),
   mz_tol = 25,

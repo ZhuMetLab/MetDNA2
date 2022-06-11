@@ -32,6 +32,9 @@ setGeneric(name = 'mergeRecursiveAnnotation',
            def = function(
              path = '.',
              use_redun_rm_result = FALSE,
+             # for skip functions
+             is_anno_mrn = TRUE,
+             is_credential = TRUE,
              ...
            ){
              if ('id_merge_before_credential.RData' %in%
@@ -62,10 +65,14 @@ setGeneric(name = 'mergeRecursiveAnnotation',
 
              annot_all <- addInitialSeedResult2MetDNA2AnnoClass(annot_all = annot_all,
                                                                 result_initial_annotation = result_initial_annotation)
-
-             annot_all <- addRecursiveResult2MetDNA2AnnoClass(annot_all = annot_all,
-                                                              result_recursive_annotation = result_recursive_annotation,
-                                                              ...)
+             
+             if (is_anno_mrn) {
+               annot_all <- addRecursiveResult2MetDNA2AnnoClass(annot_all = annot_all,
+                                                                result_recursive_annotation = result_recursive_annotation,
+                                                                ...)
+             } else {
+               cat('Skip recursive annotation results addition.\n')
+             }
 
              dir.create(file.path(path, '03_annotation_credential', "00_intermediate_data"),
                         showWarnings = FALSE,
@@ -75,21 +82,41 @@ setGeneric(name = 'mergeRecursiveAnnotation',
                   file = file.path(path, '03_annotation_credential', "00_intermediate_data", 'annot_all_before_credential.RData'),
                   version = 2)
 
-             id_merge <- generateResultTable4AllAnnotation(annot_all = annot_all,
-                                                           is_cred_pg_filter = FALSE,
-                                                           is_cred_formula_filter = FALSE,
-                                                           ...)
-
              # id_merge <- generateResultTable4AllAnnotation(annot_all = annot_all,
              #                                               is_cred_pg_filter = FALSE,
-             #                                               is_cred_formula_filter = FALSE)
+             #                                               is_cred_formula_filter = FALSE,
+             #                                               ...)
+             # 
+             # # id_merge <- generateResultTable4AllAnnotation(annot_all = annot_all,
+             # #                                               is_cred_pg_filter = FALSE,
+             # #                                               is_cred_formula_filter = FALSE)
+             # 
+             # save(id_merge,
+             #      file = file.path(path, '03_annotation_credential', "00_intermediate_data", 'id_merge_before_credential.RData'),
+             #      version = 2)
+             # 
+             # return(id_merge)
 
-             save(id_merge,
-                  file = file.path(path, '03_annotation_credential', "00_intermediate_data", 'id_merge_before_credential.RData'),
-                  version = 2)
-
-             return(id_merge)
-
+             # for skip functions
+             if (is_credential) {
+               id_merge <- generateResultTable4AllAnnotation(annot_all = annot_all,
+                                                             is_cred_pg_filter = FALSE,
+                                                             is_cred_formula_filter = FALSE,
+                                                             ...)
+               
+               # id_merge <- generateResultTable4AllAnnotation(annot_all = annot_all,
+               #                                               is_cred_pg_filter = FALSE,
+               #                                               is_cred_formula_filter = FALSE)
+               
+               save(id_merge,
+                    file = file.path(path, '03_annotation_credential', "00_intermediate_data", 'id_merge_before_credential.RData'),
+                    version = 2)
+               
+               return(id_merge)
+             } else {
+               cat('Skip id merge before credential.\n');return(NULL)
+             }
+             
            })
 
 
@@ -362,12 +389,47 @@ setGeneric(name = 'addRecursiveResult2MetDNA2AnnoClass',
 
                # add structure information into recursive annotation
                temp_idx2 <- match(temp_anno_recursive$id, cpd_emrn$id)
+               
+               # for (i_na_check in seq_along(temp_idx2)) {
+               #   if (is.na(temp_idx2[i_na_check])) {
+               #     temp_idx2[i_na_check] = grep(pattern = temp_anno_recursive$id[i_na_check], x = cpd_emrn$id_kegg_synonyms)[1]
+               #   }
+               #   if (is.na(temp_idx2[i_na_check])) {
+               #     temp_idx2[i_na_check] = grep(pattern = temp_anno_recursive$id[i_na_check], x = cpd_emrn$id_kegg)[1]
+               #   }
+               # } # 20220423 id_kegg redirection by Haosong Zhang
+               
                temp_anno_recursive$name <- cpd_emrn$name[temp_idx2]
                temp_anno_recursive$formula <- cpd_emrn$formula[temp_idx2]
                temp_anno_recursive$smiles <- cpd_emrn$smiles[temp_idx2]
                temp_anno_recursive$inchikey <- cpd_emrn$inchikey[temp_idx2]
                temp_anno_recursive$inchikey1 <- cpd_emrn$inchikey1[temp_idx2]
                temp_anno_recursive$cpd_type <- cpd_emrn$type[temp_idx2]
+               
+               for (i_na_check in seq_along(temp_idx2)) {
+                 if (is.na(temp_idx2[i_na_check])) {
+                   data("lib_kegg", envir = environment())
+                   temp_idx_kegg <- match(temp_anno_recursive$id[i_na_check], lib_kegg$id)
+                   temp_anno_recursive$name[i_na_check] <- lib_kegg$name[temp_idx_kegg]
+                   temp_anno_recursive$formula[i_na_check] <- lib_kegg$formula[temp_idx_kegg]
+                   temp_anno_recursive$smiles[i_na_check] <- lib_kegg$smiles[temp_idx_kegg]
+                   temp_anno_recursive$inchikey[i_na_check] <- lib_kegg$inchikey[temp_idx_kegg]
+                   temp_anno_recursive$inchikey1[i_na_check] <- lib_kegg$inchikey1[temp_idx_kegg]
+                   temp_anno_recursive$cpd_type[i_na_check] <- lib_kegg$type[temp_idx_kegg]
+                   if (is.na(temp_idx_kegg)) {
+                     temp_idx_emrn = grep(pattern = temp_anno_recursive$id[i_na_check], x = cpd_emrn$id_kegg_synonyms)[1]
+                     if (is.na(temp_idx_emrn)) {
+                       temp_idx_emrn = grep(pattern = temp_anno_recursive$id[i_na_check], x = cpd_emrn$id_kegg)[1]
+                     }
+                     temp_anno_recursive$name[i_na_check] <- cpd_emrn$name[temp_idx_emrn]
+                     temp_anno_recursive$formula[i_na_check] <- cpd_emrn$formula[temp_idx_emrn]
+                     temp_anno_recursive$smiles[i_na_check] <- cpd_emrn$smiles[temp_idx_emrn]
+                     temp_anno_recursive$inchikey[i_na_check] <- cpd_emrn$inchikey[temp_idx_emrn]
+                     temp_anno_recursive$inchikey1[i_na_check] <- cpd_emrn$inchikey1[temp_idx_emrn]
+                     temp_anno_recursive$cpd_type[i_na_check] <- cpd_emrn$type[temp_idx_emrn]
+                   }
+                 }
+               } # 20220427 id_kegg redirection from lib_kegg by Haosong Zhang
 
                annot_all[[temp_idx]]@recursive_annotation <- temp_anno_recursive
 
@@ -520,7 +582,7 @@ setGeneric(name = 'generateResultTable4AllAnnotation',
            def = function(
              annot_all,
              path = '.',
-             lib = c('zhuMetLib', 'zhuMetLib_orbitrap', 'fiehnHilicLib', 'zhuRPLib'),
+             lib = c('zhumetlib_qtof', 'zhumetlib_orbitrap', 'fiehnHilicLib'),
              thread = 4,
              direction = c('forward', 'reverse'),
              is_cred_pg_filter = TRUE,
@@ -815,7 +877,7 @@ setGeneric(name = 'generateResultTable4AllAnnotation',
              # cl <- makeCluster(3L)
              cl <- makeCluster(thread)
 
-             if (lib %in% c("zhuMetLib", 'zhuMetLib_orbitrap')) {
+             if (lib %in% c("zhumetlib_qtof", 'zhumetlib_orbitrap')) {
                data("zhuMetlib", envir = environment())
                cpd_info <- zhuMetlib$meta$compound
              }
@@ -823,11 +885,6 @@ setGeneric(name = 'generateResultTable4AllAnnotation',
              if (lib == "fiehnHilicLib") {
                data("fiehnHilicLib", envir = environment())
                cpd_info <- fiehnHilicLib$meta$compound
-             }
-
-             if (lib == 'zhuRPLib') {
-               data('zhuRPlib', envir = environment())
-               cpd_info <- zhuRPlib$meta$compound
              }
 
              clusterExport(cl, c("tempFun", 'annot_all', 'cpd_info', 'tolerance_rt_range', 'temp_colname_ms2', '%>%', 'test_evaluation'),
