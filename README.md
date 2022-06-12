@@ -49,7 +49,6 @@ The step-by-step tutorials are provided in the [**MetDNA2 website**](http://metd
 ### Output
 The results should be looks like below:
 
-</p>
 <br><img style="width: 70%; max-height: 100%; display:block; margin:0 auto" src="https://metdna2-1258133059.cos.ap-shanghai.myqcloud.com/HelpFigures/figure24.png"><br>
 
 - The `00_annotation_table` contains annotation results:
@@ -84,12 +83,12 @@ runMetDNA2(
 ### Demo data set and Runtime
 Generally, it requires 4-8 hours to complete a project, which depends on the number of features and MS/MS spectra. The raw MS data can be found the repository ([NIST urine](https://www.biosino.org/node/project/detail/OEP003157), [Fruit fly](https://www.ebi.ac.uk/metabolights/MTBLS612/descriptors)). 
 
-Project | Running time (hours) | Download
----|--- | ---
-NIST urine (Pos) | 5.4 h | [Here](https://mega.nz/file/w7ZnjLAa#u4Dj5lhkYyEhOZHH4BX_HUHvGMkjZ_ti5bn986tgyrY)
-NIST urine (Neg) | 8.8 h | [Here](https://mega.nz/file/kjoDhJBD#0BTqTZDuzbI_06aEXb8dtUo1z_1kqtp2FIIEyqpx_cU) 
-Head tissue of fruit fly (Pos) | 5.0 h | [Here](https://mega.nz/file/Fy5GRAxA#FKSfmzUZrZFpVy1lvSYlUzKWj_ELVY6C-hm_fUqZ1zk) 
-Head tissue of fruit fly (Neg) | 5.9 h | [Here](https://mega.nz/file/syZ2jQBJ#WgM92sNXHydGj1jCMOcXsa7tnDwXUCEtWi7GO9w1VT0)
+Project | Running time (hours) | Download | Network
+---|--- | --- | ---
+NIST urine (Pos) | 5.4 h | [Here](https://mega.nz/file/w7ZnjLAa#u4Dj5lhkYyEhOZHH4BX_HUHvGMkjZ_ti5bn986tgyrY) | [Link](https://github.com/ZhuMetLab/MetDNA2_Web/blob/main/Demo_data/Networks/Network_NIST_urine_pos.zip)
+NIST urine (Neg) | 8.8 h | [Here](https://mega.nz/file/kjoDhJBD#0BTqTZDuzbI_06aEXb8dtUo1z_1kqtp2FIIEyqpx_cU) | [Link](https://github.com/ZhuMetLab/MetDNA2_Web/blob/main/Demo_data/Networks/Network_NIST_urine_neg.zip)
+Head tissue of fruit fly (Pos) | 5.0 h | [Here](https://mega.nz/file/Fy5GRAxA#FKSfmzUZrZFpVy1lvSYlUzKWj_ELVY6C-hm_fUqZ1zk)  | [Link](https://github.com/ZhuMetLab/MetDNA2_Web/blob/main/Demo_data/Networks/Network_fruit_fly_pos.zip)
+Head tissue of fruit fly (Neg) | 5.9 h | [Here](https://mega.nz/file/syZ2jQBJ#WgM92sNXHydGj1jCMOcXsa7tnDwXUCEtWi7GO9w1VT0) | [Link](https://github.com/ZhuMetLab/MetDNA2_Web/blob/main/Demo_data/Networks/Network_fruit_fly_neg.zip)
 
 ### Connection with other metabolomics workflows
 The KGMN is a versatile tool to compatible with various data processing tools and analysis workflow in metabolomics community. 
@@ -98,14 +97,14 @@ The KGMN is a versatile tool to compatible with various data processing tools an
 
 No. | Tool | Usage | Version | Tutorial 
 --- | --- | --- | --- |  --- 
-1 | XCMS | Peak picking (Input of KGMN) | >= v1.46.0  |  [Tutorial](http://metdna.zhulab.cn/metdna/help#3.1) 
-2 | MS-DIAL | Peak picking (Input of KGMN) | >= V4.60 |  [Tutorial](http://metdna.zhulab.cn/metdna/help#3.2) 
-3 | MZmine | Peak picking (Input of KGMN) | >= V3.0.21 |  [Tutorial](https://github.com/ZhuMetLab/MetDNA2_Web/blob/main/Tutorials/Tutorial_data_preprocessing_MZmine.pdf) 
-4 | MetFrag | Cross evaluation of KGMN metabolites | >= V2.4.5 | [Tutorial](https://github.com/ZhuMetLab/MetDNA2_Web/blob/main/Tutorials/Tutorial_KGMN_and_insilico_ms2.pdf) 
-5 | CFM-ID | Cross evaluation of KGMN metabolites | >= V2.4 | [Tutorial](https://github.com/ZhuMetLab/MetDNA2_Web/blob/main/Tutorials/Tutorial_KGMN_and_insilico_ms2.pdf) 
-6 | MS-FINDER | Cross evaluation of KGMN metabolites | >= V3.24 | [Tutorial](https://github.com/ZhuMetLab/MetDNA2_Web/blob/main/Tutorials/Tutorial_KGMN_and_insilico_ms2.pdf) 
-7 | MASST | Repository search | Workflow29 | [Tutorial](https://github.com/ZhuMetLab/MetDNA2_Web/blob/main/Tutorials/Tutorial_KGMN_and_MASST.pdf) 
-8 | Cytoscape | Visualization of KGMN | >= V5.8.3 | [Tutorial](https://github.com/ZhuMetLab/MetDNA2_Web/blob/main/Tutorials/Tutorial_visualization.pdf) 
+1 | XCMS | Peak picking (Input of KGMN) | &ge; v1.46.0  |  [Tutorial](http://metdna.zhulab.cn/metdna/help#3.1) 
+2 | MS-DIAL | Peak picking (Input of KGMN) | &ge; V4.60 |  [Tutorial](http://metdna.zhulab.cn/metdna/help#3.2) 
+3 | MZmine | Peak picking (Input of KGMN) | &ge; V3.0.21 |  [Tutorial](https://github.com/ZhuMetLab/MetDNA2_Web/blob/main/Tutorials/Tutorial_data_preprocessing_MZmine.pdf) 
+4 | MetFrag | Cross evaluation of KGMN metabolites | &ge; V2.4.5 | [Tutorial](https://github.com/ZhuMetLab/MetDNA2_Web/blob/main/Tutorials/Tutorial_KGMN_and_insilico_ms2.pdf) 
+5 | CFM-ID | Cross evaluation of KGMN metabolites | &ge; V2.4 | [Tutorial](https://github.com/ZhuMetLab/MetDNA2_Web/blob/main/Tutorials/Tutorial_KGMN_and_insilico_ms2.pdf) 
+6 | MS-FINDER | Cross evaluation of KGMN metabolites | &ge; V3.24 | [Tutorial](https://github.com/ZhuMetLab/MetDNA2_Web/blob/main/Tutorials/Tutorial_KGMN_and_insilico_ms2.pdf) 
+7 | MASST | Repository search | &ge; Workflow29 | [Tutorial](https://github.com/ZhuMetLab/MetDNA2_Web/blob/main/Tutorials/Tutorial_KGMN_and_MASST.pdf) 
+8 | Cytoscape | Visualization of KGMN | &ge; V5.8.3 | [Tutorial](https://github.com/ZhuMetLab/MetDNA2_Web/blob/main/Tutorials/Tutorial_visualization.pdf) 
 
 
 ## Need help?
