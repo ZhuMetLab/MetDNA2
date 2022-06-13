@@ -49,7 +49,7 @@ The step-by-step tutorials are provided in the [**MetDNA2 website**](http://metd
 ### Output
 The results should be looks like below:
 
-<br><img style="width: 70%; max-height: 100%; display:block; margin:0 auto" src="https://metdna2-1258133059.cos.ap-shanghai.myqcloud.com/HelpFigures/figure24.png"><br>
+<br><img style="width: 70%; max-height: 100%; display:block; margin:0 auto" src="https://metdna2-1258133059.cos.ap-shanghai.myqcloud.com/HelpFigures/result_220613.png"><br>
 
 - The `00_annotation_table` contains annotation results:
     - The <b>table1_identification.csv</b> contains base peak annotated candidates.
