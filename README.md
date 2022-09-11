@@ -39,7 +39,7 @@ Generally, MetDNA requires the import of the following files for metabolite iden
 
 1. A MS1 peak table (.csv format, **required**). The first three columns must be "name" , "mz" , and "rt".
 2. MS2 data files (.mgf or .msp format, **required**). 
-3. A table for sample information (.csv format, **required**). The first three columns must be "sample.name" and "group".
+3. A table for sample information (.csv format, **required**). The first two columns must be "sample.name" and "group".
 4. A RT recalibration table (.csv format, **optional**). If you would like to follow our published LC method and recalibrate the RT library. The gradient of LC are provided [here](http://metdna.zhulab.cn/metdna/help#demodata).
 
 The step-by-step tutorials are provided in the [**MetDNA2 website**](http://metdna.zhulab.cn/metdna/help) and the later parts.
